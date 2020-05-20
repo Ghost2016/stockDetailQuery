@@ -1,0 +1,24 @@
+{
+  "name": "stock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write --loglevel=warn 'src/**.html'",
+    "start": "./start.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@108.61.202.106:/srv/stock/stock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^1.16.4"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.88.0"
+  }
+}
