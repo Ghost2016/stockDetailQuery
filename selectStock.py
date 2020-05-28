@@ -130,7 +130,7 @@ def getToken(q, m):
                 chrome_options.add_argument('--headless')
                 chrome_options.add_argument('--disable-gpu')
                 # driver = webdriver.Chrome('/Users/ghost/Downloads/chromedriver 76.0.3809.68', chrome_options=chrome_options)
-                driver = webdriver.Chrome('./chromedriver.81')
+                driver = webdriver.Chrome('./chromedriver.83', chrome_options=chrome_options)
                 # 打开爱问财页面
                 driver.get('http://www.iwencai.com/stockpick/search?typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E8%BF%91%E4%B8%80%E4%B8%AA%E6%9C%88%E6%91%98%E5%B8%BD%E4%B8%AA%E8%82%A1&queryarea=')
             else:
@@ -231,7 +231,8 @@ def readTheMarket():
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
-        driver = webdriver.Chrome('/Users/ghost/Downloads/chromedriver', chrome_options=chrome_options)
+        # driver = webdriver.Chrome('/Users/ghost/Downloads/chromedriver', chrome_options=chrome_options)
+        driver = webdriver.Chrome('./chromedriver.83', chrome_options=chrome_options)
         # 打开爱问财页面
         driver.get('http://www.iwencai.com/stockpick/search?typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E8%BF%91%E4%B8%80%E4%B8%AA%E6%9C%88%E6%91%98%E5%B8%BD%E4%B8%AA%E8%82%A1&queryarea=')
         # 找到搜索框
