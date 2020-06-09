@@ -155,7 +155,7 @@ def parseIWencai(q, d, m, t=''):
     global timer, token, header, url, res, html, stockList
     while isInTradeTime():
         print('第%s次' % timer)
-        if timer % 10 == 0:
+        if timer % 20 == 0:
             m.put(const.NEED_TOKEN)
             time.sleep(0.3)
             try:
