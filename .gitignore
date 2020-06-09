@@ -4,3 +4,4 @@ __pycache__/**
 *.pkl
 easyquotation/**
 totalStockList.txt
+browsermob-proxy-2.1.4/**
