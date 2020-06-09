@@ -167,9 +167,7 @@ def parseIWencai(q, d, m, t=''):
                 pass
         if not q.empty(): 
             token = q.get(True)
-        else:
-            token = t
-        if not token == '':
+        if token != '':
             header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
                       'hexin-v': token}
             url = 'http://www.iwencai.com/stockpick/load-data?typed=1&preParams=&ts=1&f=1&qs=result_rewrite' \
@@ -178,8 +176,6 @@ def parseIWencai(q, d, m, t=''):
                 # 解析逻辑
                 res = requests.get(url,headers=header)
                 html = res.text
-                # print(html)
-                # m.put(const.IS_NOT_IN_TRADE_TIME)
                 # 过滤出来票
                 stockList = set(re.findall('(?<=&w=)\d{6}',html,re.S))
                 d.put(stockList)
@@ -190,7 +186,7 @@ def parseIWencai(q, d, m, t=''):
             finally:
                 pass
         # 休息2s
-        time.sleep(1)
+        time.sleep(0)
         # 次数自加1
         timer=timer + 1
         # timer = 10 / 0
