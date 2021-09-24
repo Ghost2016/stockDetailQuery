@@ -3,6 +3,8 @@
 #coding: utf-8
 
 import urllib
+import urllib.request
+
 import requests
 import re
 import json
@@ -28,6 +30,14 @@ from wechat import login, sendMessageToMyself, sendMessageToFriend
 # 常量
 from variables import const
 from subprocess import call
+
+from utils import user_agent
+import execjs
+
+with open('./src/aes.min.js', 'r') as f:
+    jscontent = f.read()
+context = execjs.compile(jscontent)
+
 
 # 如果不在交易时间，则不会进入策略
 if not isInTradeTime():
@@ -81,11 +91,14 @@ stockList=[]
 result=[]
 # 网站token信息
 token=None
+# Cookie信息
+cookie=None
 
 # 策略内容
 # categoryString="昨天没有涨停 今天涨停后开板 今天涨幅大于5% 非st 十大流通股东不包含信托"
 # categoryString="上一个交易日没有涨停 今日涨停后开板 非st 十大流通股东不包含信托"
-categoryString="上一交易日没有涨停 今天涨停后开板 非st 流通市值小于60亿大于8亿 基金没有持股或者基金持股比例小于0.8% 信托没有持股或者信托持股比例小于0.8%"
+# categoryString="上一交易日没有涨停 今天涨停后开板 非st 流通市值小于60亿大于8亿 基金没有持股或者基金持股比例小于0.8% 信托没有持股或者信托持股比例小于0.8%"
+categoryString="上一交易日没有涨停 今天涨停后开板 非st"
 
 # 使用set进行对比，得到新增加的票
 def getFirstInStock(l):
@@ -127,20 +140,29 @@ def getToken(q, m):
             if not driver:
                 print('not driver')
                 chrome_options = Options()
-                chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--disable-gpu')
+                # chrome_options.add_argument('--headless')
+                # chrome_options.add_argument('--disable-gpu')
+                chrome_options.add_argument('–incognito')
+                chrome_options.add_argument('--user-agent={}'.format(user_agent.getheaders()['User-Agent']))
+                chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+
                 # driver = webdriver.Chrome('/Users/ghost/Downloads/chromedriver 76.0.3809.68', chrome_options=chrome_options)
-                driver = webdriver.Chrome('./chromedriver.83', chrome_options=chrome_options)
+                driver = webdriver.Chrome('./chromedriver', chrome_options=chrome_options)
                 # 打开爱问财页面
-                driver.get('http://www.iwencai.com/stockpick/search?typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E8%BF%91%E4%B8%80%E4%B8%AA%E6%9C%88%E6%91%98%E5%B8%BD%E4%B8%AA%E8%82%A1&queryarea=')
+                # driver.get('http://www.iwencai.com/?allow_redirect=false')
+                driver.get('http://www.iwencai.com/unifiedmobile/?q=%E4%B8%89%E8%BF%9E%E6%9D%BF%20%E9%9D%9Est%20%E4%B8%8A%E5%B8%82%E6%97%B6%E9%97%B4%E8%B6%85%E8%BF%875%E5%A4%A9#/result?question=%E4%B8%89%E8%BF%9E%E6%9D%BF%20%E9%9D%9Est%20%E4%B8%8A%E5%B8%82%E6%97%B6%E9%97%B4%E8%B6%85%E8%BF%875%E5%A4%A9')
+
+                
             else:
                 driver.execute_script("window.location.reload()")
                 pass
             # 拿token
             token=driver.execute_script("return window.localStorage.getItem('hexin-v')")
-            q.put(token)
+            # token=context.call('v')
+            # cookie='other_uid=Ths_iwencai_Xuangu_bei8z16zqy9qkuq9r7gtwgux8etj9vbd; cid=d82691a5da04cb7131bc01c06a7268db1606273997; ComputerID=d82691a5da04cb7131bc01c06a7268db1606273997; WafStatus=0; PHPSESSID=e948066a486e5dec4152fe0c32efbb7d; guideState=1; v=BOeS1JYbavXCtWr_BkGO375-ChcAw9s2B10AaAnF4CpTj6z8AAsAXgDlC9Nx'
             # 打印token
             print('token:', token)
+            # print('cookie:', cookie)
         # 过了交易时间了
         elif tempString == const.IS_NOT_IN_TRADE_TIME:
             # 退出浏览器
@@ -168,16 +190,34 @@ def parseIWencai(q, d, m, t=''):
         if not q.empty(): 
             token = q.get(True)
         if token != '':
-            header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
-                      'hexin-v': token}
+            print('Cookie', user_agent.getheaders()['User-Agent'])
+            header = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36',
+                    'Cookie': 'v={}'.format(token)
+                    # 'Cookie': 'v=A4G0VSwzhbsgoumPtHzTtgrElsaYrvWgHyKZtOPWfQjnyq8wK_4FcK9yqatw;'
+                    }
+            # print('headers:', user_agent.getheaders()['User-Agent'])
+            # header = {'User-Agent': user_agent.getheaders()['User-Agent'],
+            #           'hexin-v': token,
+            #           'Cookie': cookie
+            #           }
+            # url = 'http://www.iwencai.com/?allow_redirect=false&typed=1&preParams=&ts=1&f=1&qs=result_rewrite' \
+            #       '&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&queryarea=&w=' + urllib.parse.quote(categoryString)
             url = 'http://www.iwencai.com/stockpick/load-data?typed=1&preParams=&ts=1&f=1&qs=result_rewrite' \
                   '&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&queryarea=&w=' + urllib.parse.quote(categoryString)
+            print(url)
             try:
+                # opener = urllib.request.build_opener()
+                # opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36')]
+                # rest = opener.open(url)
+                # print(rest)
                 # 解析逻辑
                 res = requests.get(url,headers=header)
                 html = res.text
+                print(html)
                 # 过滤出来票
                 stockList = set(re.findall('(?<=&w=)\d{6}',html,re.S))
+                print(stockList)
                 d.put(stockList)
                 # 获取首次进策略的票
                 getFirstInStock(stockList)
@@ -186,7 +226,7 @@ def parseIWencai(q, d, m, t=''):
             finally:
                 pass
         # 休息2s
-        time.sleep(0)
+        time.sleep(2)
         # 次数自加1
         timer=timer + 1
         # timer = 10 / 0
@@ -215,7 +255,7 @@ def doLoop(fn):
     # if driver:
     # driver.quit()
     print('结束了')
-    # 退出
+    # 退出`
     os._exit(1)
 
 # 复盘

@@ -5,3 +5,5 @@ __pycache__/**
 easyquotation/**
 totalStockList.txt
 browsermob-proxy-2.1.4/**
+chromedriver.**
+chromedriver**
