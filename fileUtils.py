@@ -33,3 +33,16 @@ def getStocks():
             return total
         else:
             return set()
+
+# 清空股票列表的set
+def clearStocks():
+    print('clearStock')
+    with open(fileName, 'w') as f:
+        if f:
+            f.truncate()
+            return set()
+        else:
+            return set()
+
+if __name__ == '__main__':
+    clearStocks()
