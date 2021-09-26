@@ -4,7 +4,6 @@
 
 from copy import deepcopy
 import requests
-import pandas as pd
 import re
 
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -45,7 +44,6 @@ def crawl_data_from_wencai(question="今日涨停后开板"):
 
     try:
         response = requests.get(Question_url, params=payload, headers=headers_wc)
-
         if response.status_code == 200:
             html = response.text
             stockList = set(re.findall("\"(\d{6}(?!\d))\"",html,re.S))

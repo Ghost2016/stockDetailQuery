@@ -7,7 +7,7 @@ import time
 # 用于判断是什么系统
 import platform
 
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 
 # 本机库
 # 用于存放历史股票列表
@@ -19,11 +19,12 @@ from wechat import login, sendMessageToMyself, sendMessageToFriend
 
 from meepwn import crawl_data_from_wencai
 
+import pyautogui as gui
 
 # 如果不在交易时间，则不会进入策略
 if not isInTradeTime():
     print('不在交易时间了...')
-    os._exit(1)
+    # os._exit(1)
 
 # 是否是在Mac上进行操作
 isOnMac = (platform.system() == 'Darwin')
@@ -31,8 +32,6 @@ isOnMac = (platform.system() == 'Darwin')
 # useWeChatToSendMessage=False
 useWeChatToSendMessage=True
 
-# 先登录微信
-useWeChatToSendMessage and login()
 
 # 存放当前的票的列表的Set
 current_stock_list = set()
@@ -49,8 +48,6 @@ def getFirstInStock(l):
     result = (current_stock_list | total_stock_list) ^ total_stock_list
     if not len(result) == 0:
         print('新进来的票:', result)
-        # 进行弹窗提示
-        showMessage(list(result)[0])
         # 发送微信消息
         useWeChatToSendMessage and sendMessage(result)
         # 获取全部的股票的列表
@@ -61,17 +58,9 @@ def getFirstInStock(l):
 
 # 发送信息（目前是发送到微信）
 def sendMessage(result):
-    sendMessageToMyself(result)
-    # sendMessageToFriend(result)
-
-# 弹出提示（目前是调用Mac自带的弹出提示，windows可能需要更换其他的提示）
-def showMessage(stockname) :
-    if isOnMac:
-        # os.popen("osascript -e 'display notification \"" + stockname + "\" with title \"有新的票来了\"'")
-        os.system("osascript -e 'beep 3'")
-        os.system("osascript -e 'display notification \"软件\" with title \"更新完成\"'")
-
-# 遍历策略
+    gui.typewrite(message='pig %s!' %result)
+    gui.hotkey('enter')
+# 遍历策略 !
 def parseIWencai():
     global timer
     while isInTradeTime():
@@ -90,19 +79,9 @@ def parseIWencai():
             return false
         else:
             pass
-# 循环
-def doLoop(fn):
-    global driver
-    # 父进程创建一个Queue，并传递给各个子进程，存储数据
-    gt = Process(target=fn)
-    gt.start()
-    gt.join()
-    print('结束了')
-    # 退出`
-    os._exit(1)
 
 if __name__ == '__main__':
+    gui.hotkey('command','option','shift','w')
     # 微信消息测试
     useWeChatToSendMessage and sendMessage('这只是一条测试数据，用于检测是否能够成功从电脑端发消息')
-    # 不断查询问财
-    doLoop(parseIWencai)
+    parseIWencai()
