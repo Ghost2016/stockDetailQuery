@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #coding: utf-8
 
-from fileUtils import clearStocks
 import time
 import datetime
 from chinese_calendar import is_workday
@@ -55,7 +54,6 @@ def printBeforeSleep(now, distance):
     print('休息时间%i小时%i分钟%i秒' % (int(distance/3600),
           int(distance % 3600/60), int(distance % 3600 % 60)))
     sleep(distance)
-    clearStocks()
 
 # 休息到下一个交易日交易节点
 def sleepToNextTradeDay():

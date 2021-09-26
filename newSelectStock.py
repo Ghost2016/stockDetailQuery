@@ -2,29 +2,18 @@
 #!/usr/bin/env python
 #coding: utf-8
 
-import os
 import time
 # 用于判断是什么系统
 import platform
 
-from multiprocessing import Process, Queue
-
-# 本机库
 # 用于存放历史股票列表
-from fileUtils import saveStocks, getStocks
+from fileUtils import saveStocks, getStocks, clearStocks
 # 交易工具
-from tradeUtils import isInTradeTime
-# 封装的微信的api
-from wechat import login, sendMessageToMyself, sendMessageToFriend
+from tradeUtils import isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
 
 from meepwn import crawl_data_from_wencai
 
 import pyautogui as gui
-
-# 如果不在交易时间，则不会进入策略
-if not isInTradeTime():
-    print('不在交易时间了...')
-    # os._exit(1)
 
 # 是否是在Mac上进行操作
 isOnMac = (platform.system() == 'Darwin')
@@ -36,7 +25,7 @@ useWeChatToSendMessage=True
 # 存放当前的票的列表的Set
 current_stock_list = set()
 # 存放所有进来过的票的列表
-total_stock_list = getStocks()
+total_stock_list = set()
 result=[]
 timer=1
 # 使用set进行对比，得到新增加的票
@@ -58,30 +47,53 @@ def getFirstInStock(l):
 
 # 发送信息（目前是发送到微信）
 def sendMessage(result):
-    gui.typewrite(message='pig %s!' %result)
+    gui.typewrite(message='%s' % result)
     gui.hotkey('enter')
+
 # 遍历策略 !
 def parseIWencai():
-    global timer
-    while isInTradeTime():
-        print('第%s次' % timer)
-        stockList = crawl_data_from_wencai()
-        # 获取首次进策略的票
-        getFirstInStock(stockList)
-        # 休息5s
-        time.sleep(5)
-        # 次数自加1
-        timer=timer + 1
-        # timer = 10 / 0
-        # 如果过了交易时间
-        if not isInTradeTime():
-            print('过了交易时间了')
-            return false
-        else:
-            pass
+    global timer,total_stock_list
+    # 如果不是在交易日
+    if(not isInTradeDay()):
+        print('不是在交易日 开始')
+        sleepToNextTradeDay()
+        clearStocks()
+        total_stock_list=set()
+        print('不是在交易日 结束')
+        return False 
+    # 如果不在交易时间内
+    if(not isInTradeTime()):
+        print('未在交易时间内 开始')
+        sleepToNextTradeTime()
+        clearStocks()
+        total_stock_list=set()
+        print('未在交易时间内 结束')
+        return False 
+    print('第%s次' % timer)
+    stockList = crawl_data_from_wencai()
+    # 获取首次进策略的票
+    getFirstInStock(stockList)
+    # 休息5s
+    time.sleep(3)
+    # 次数自加1
+    timer=timer + 1
+        
 
 if __name__ == '__main__':
-    gui.hotkey('command','option','shift','w')
-    # 微信消息测试
-    useWeChatToSendMessage and sendMessage('这只是一条测试数据，用于检测是否能够成功从电脑端发消息')
-    parseIWencai()
+
+    str=input('是否要清除股票池 ' + 'y/n?')
+    if(not str=='n'):
+        clearStocks()
+    total_stock_list = getStocks()
+    time.sleep(1)
+
+    # 切换到微信
+    useWeChatToSendMessage and gui.hotkey('command','option','shift','w')
+    time.sleep(1)
+
+    # # 微信消息测试
+    useWeChatToSendMessage and sendMessage('Ready to run.')
+    time.sleep(1)
+    
+    while True:
+        parseIWencai()
