@@ -6,19 +6,18 @@ from copy import deepcopy
 import requests
 import re
 
+from utils.user_agent import getUserAgent
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
            'Accept-Encoding': 'gzip, deflate',
            'Accept-Language': 'zh-CN,zh;q=0.9',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive',
            'Upgrade-Insecure-Requests': '1',
-        #   'If-Modified-Since': 'Thu, 11 Jan 2018 07:05:01 GMT',
-           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36'}
+           'Referer': "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick",
+           "Host": "www.iwencai.com",
+           "X-Requested-With":"XMLHttpRequest",
+}
 
-headers_wc = deepcopy(headers)
-headers_wc["Referer"] = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
-headers_wc["Host"] = "www.iwencai.com"
-headers_wc["X-Requested-With"] = "XMLHttpRequest"
 
 Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
 
@@ -41,6 +40,8 @@ def crawl_data_from_wencai(question="今日涨停后开板"):
         "perpage": 5000,
         "query_type": "stock"
     }
+    headers_wc = deepcopy(headers)
+    headers_wc['User-Agent'] = getUserAgent()
 
     try:
         response = requests.get(Question_url, params=payload, headers=headers_wc)
