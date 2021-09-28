@@ -30,6 +30,11 @@ result=[]
 timer=1
 # 使用set进行对比，得到新增加的票
 def getFirstInStock(l):
+    if l == '000000':
+        useWeChatToSendMessage and sendMessage('There is something wrong with the network.')
+        # Todo 添加验证码逻辑
+        time.sleep(999999)
+        return
     global current_stock_list, total_stock_list
     # print('存放所有的票的列表:', total_stock_list)
     current_stock_list=set(l)
@@ -92,7 +97,7 @@ if __name__ == '__main__':
     time.sleep(1)
 
     # # 微信消息测试
-    useWeChatToSendMessage and sendMessage('Ready to run.')
+    # useWeChatToSendMessage and sendMessage('Ready to run.')
     time.sleep(1)
     
     while True:

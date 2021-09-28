@@ -17,6 +17,7 @@ TIME_NODE = {
 
 # 是否处于一天的交易时间
 def isInTradeTime():
+    # return True
     isIn = False
     localTime = time.localtime()
     # localTime = time.localtime(1459925086.7115328)

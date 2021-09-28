@@ -22,7 +22,7 @@ headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
 
 
-def crawl_data_from_wencai(question="今日涨停后开板"):
+def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
     """通过问财接口抓取数据
     
     Arguments:
@@ -50,9 +50,11 @@ def crawl_data_from_wencai(question="今日涨停后开板"):
             stockList = set(re.findall("\"(\d{6}(?!\d))\"",html,re.S))
             return stockList
         else:
-            print("连接访问接口失败")           
+            print("连接访问接口失败")
+            return '000000'
     except Exception as e:
         print(e)
+        return '000000'
 
 
 if __name__ == "__main__":
