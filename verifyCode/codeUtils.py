@@ -29,7 +29,10 @@ def saveCode():
     # 点击替换
     gui.moveTo(x=664, y=192)
     gui.click()
-    
+
+def handleSessionError():
+    # 下载
+    saveCode()
 
 
 if __name__ == '__main__':
