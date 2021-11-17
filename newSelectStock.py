@@ -15,6 +15,7 @@ from meepwn import crawl_data_from_wencai
 
 import pyautogui as gui
 
+from verifyCode.codeUtils import handleSessionError
 # 是否是在Mac上进行操作
 isOnMac = (platform.system() == 'Darwin')
 # 是否需要使用微信来发送消息
@@ -32,8 +33,8 @@ timer=1
 def getFirstInStock(l):
     if l == '000000':
         useWeChatToSendMessage and sendMessage('There is something wrong with the network.')
-        # Todo 添加验证码逻辑
-        time.sleep(999999)
+        # 添加验证码逻辑
+        handleSessionError()
         return
     global current_stock_list, total_stock_list
     # print('存放所有的票的列表:', total_stock_list)
