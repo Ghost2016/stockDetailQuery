@@ -5,7 +5,7 @@ import pyautogui as gui
 from time import sleep
 from verifyCode.getCode import get_verify_code, rename_and_move_verify_code, remove_verify_code
 import os
-import datetime
+import pyperclip
 def saveCode():
     # 打开chrome
     gui.moveTo(x=970, y=1031)
@@ -14,7 +14,8 @@ def saveCode():
     gui.moveTo(x=321, y=79)
     gui.click()
     gui.hotkey('command','a')
-    gui.typewrite('http://www.iwencai.com/unifiedwap/reptile')
+    pyperclip.copy('http://www.iwencai.com/unifiedwap/reptile')
+    gui.hotkey('command','v')
     sleep(2)
     gui.hotkey('enter')
     gui.hotkey('enter')

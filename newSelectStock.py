@@ -14,7 +14,7 @@ from tradeUtils import isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepT
 from meepwn import crawl_data_from_wencai
 
 import pyautogui as gui
-
+import pyperclip
 from verifyCode.codeUtils import handleSessionError
 # 是否是在Mac上进行操作
 isOnMac = (platform.system() == 'Darwin')
@@ -53,7 +53,9 @@ def getFirstInStock(l):
 
 # 发送信息（目前是发送到微信）
 def sendMessage(result):
-    gui.typewrite(message='%s' % result)
+    # 通过复制粘贴的方式进行更快
+    pyperclip.copy(','.join(result))
+    gui.hotkey('command','v')
     gui.hotkey('enter')
 
 # 遍历策略 !

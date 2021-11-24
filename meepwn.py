@@ -5,6 +5,7 @@
 from copy import deepcopy
 import requests
 import re
+import json
 
 from utils.user_agent import getUserAgent
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -47,7 +48,11 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
         response = requests.get(Question_url, params=payload, headers=headers_wc)
         if response.status_code == 200:
             html = response.text
-            stockList = set(re.findall("\"(\d{6}(?!\d))\"",html,re.S))
+            data = json.loads(html)
+            data['data']['data'][0]['股票简称']
+            stockList=set()
+            for stock in data['data']['data']:
+                stockList.add(stock['股票简称'])
             return stockList
         else:
             print("连接访问接口失败")
