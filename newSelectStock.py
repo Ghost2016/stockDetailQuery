@@ -73,7 +73,6 @@ def parseIWencai():
     if(not isInTradeTime()):
         print('未在交易时间内 开始')
         sleepToNextTradeTime()
-        clearStocks()
         total_stock_list=set()
         print('未在交易时间内 结束')
         return False 
