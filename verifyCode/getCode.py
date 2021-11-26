@@ -61,10 +61,10 @@ def get_verify_code(img_path):
     return result
 
 def remove_verify_code(code):
-    os.remove(os.path.dirname(__file__) +'/1.jpeg')
+    os.remove(os.path.dirname(__file__) +'/getImg.jpeg')
 
 def rename_and_move_verify_code(code):
-    os.rename(os.path.dirname(__file__) +'/1.jpeg', os.path.dirname(__file__) + '/./train/' +code + '.jpeg')
+    os.rename(os.path.dirname(__file__) +'/getImg.jpeg', os.path.dirname(__file__) + '/./train/' +code + '.jpeg')
 
 if __name__ == "__main__":
     rename_and_move_verify_code('cwde32')

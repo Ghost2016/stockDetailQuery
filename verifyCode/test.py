@@ -47,7 +47,7 @@ def palette(clusters):
         palette[:, int(idx*steps):(int((idx+1)*steps)), :] = centers
     return palette
 
-img=cv.imread('./1.jpeg')
+img=cv.imread('./getImg.jpeg')
 clt_1 = clt.fit(img.reshape(-1, 3))
 show_img_compar(img, palette_perc(clt_1))
 

@@ -48,12 +48,14 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
         response = requests.get(Question_url, params=payload, headers=headers_wc)
         if response.status_code == 200:
             html = response.text
-            data = json.loads(html)
-            data['data']['data'][0]['股票简称']
+            data = json.loads(html)['data']
             stockList=set()
-            for stock in data['data']['data']:
-                stockList.add(stock['股票简称'])
-            return stockList
+            if 'data' in data:
+              for stock in data['data']:
+                  stockList.add(stock['股票简称'])
+              return stockList
+            else:
+              return stockList
         else:
             print("连接访问接口失败")
             return '000000'
