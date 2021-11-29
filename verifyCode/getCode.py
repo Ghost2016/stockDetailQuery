@@ -52,7 +52,6 @@ def base64_api(uname, pwd, img, typeid):
         return result["data"]["result"]
     else:
         return result["message"]
-    return ""
 
 def get_verify_code(img_path):
     uname = cf.get("TuJian", "username")
@@ -60,11 +59,17 @@ def get_verify_code(img_path):
     result = base64_api(uname, password, img=img_path, typeid=3)
     return result
 
-def remove_verify_code(code):
-    os.remove(os.path.dirname(__file__) +'/getImg.jpeg')
+
+def remove_verify_code():
+    file = os.path.dirname(__file__) +'/getImg.jpeg'
+    if os.path.isfile(file):
+        os.remove(file)
 
 def rename_and_move_verify_code(code):
-    os.rename(os.path.dirname(__file__) +'/getImg.jpeg', os.path.dirname(__file__) + '/./train/' +code + '.jpeg')
+    file = os.path.dirname(__file__) +'/getImg.jpeg'
+    repalceFile = os.path.dirname(__file__) + '/./train/' +code + '.jpeg'
+    if os.path.isfile(file):
+        os.rename(file, repalceFile)
 
 if __name__ == "__main__":
     rename_and_move_verify_code('cwde32')
