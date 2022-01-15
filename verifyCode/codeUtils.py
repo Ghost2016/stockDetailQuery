@@ -6,6 +6,10 @@ from time import sleep
 from verifyCode.getCode import get_verify_code, rename_and_move_verify_code, remove_verify_code
 import os
 import pyperclip
+from utils.mydriver import getDriver
+
+driver = getDriver()
+
 def saveCode():
     # 打开chrome
     gui.moveTo(x=970, y=1031)
@@ -64,7 +68,7 @@ def innerHandle():
     return result
 
 def handleSessionError():
-    result=innerHandle()
+    result=getCodeByDriver()
     if len(result) != 6:
         remove_verify_code(result)
         return handleSessionError()
@@ -72,8 +76,31 @@ def handleSessionError():
     remove_verify_code(result)
     return result
 
+# 通过chromeDriver获取验证码
+def getCodeByDriver():
+    global driver
+    driver.get('http://www.iwencai.com/unifiedwap/reptile')
+    img=None
+    button=driver.find_element_by_id('capCheck')
+    input=driver.find_element_by_id('capInput')
+    # 图片
+    try:
+        img=driver.find_element_by_id('capImg')
+    except BaseException:
+        print("没有找到图片")
+        getCodeByDriver()
+    # 存储图片
+    img.screenshot('./verifyCode/getImg.png')
+    # 解析验证码
+    result=get_verify_code(os.path.dirname(__file__)+'/getImg.jpeg')
+    input.clear()
+    input.send_keys(result)
+    # 提交
+    button.click()
+
 
 if __name__ == '__main__':
-    for i in range(0, 1):
-        saveCode()
-        sleep(2)
+    getCodeByDriver()
+    # for i in range(0, 1):
+    #     saveCode()
+    #     sleep(2)
