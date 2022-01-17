@@ -6,8 +6,8 @@ from utils.user_agent import getUserAgent
 from selenium import webdriver
 def getDriver():
     chrome_options = Options()
-    # chrome_options.add_argument('--headless')
-    # chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('–incognito')
     chrome_options.add_argument('--user-agent={}'.format(getUserAgent()))
     chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])

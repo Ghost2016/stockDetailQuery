@@ -38,7 +38,7 @@ import os
 # 33 : 单缺口识别（返回X轴坐标 只需要1张图）
 # 五、拼图识别
 # 53：拼图识别
-
+fileName = 'getImg.png'
 cf = configparser.ConfigParser()
 cf.read(os.path.dirname(__file__) + "/config.ini")
 
@@ -61,13 +61,13 @@ def get_verify_code(img_path):
 
 
 def remove_verify_code():
-    file = os.path.dirname(__file__) +'/getImg.jpeg'
+    file = os.path.dirname(__file__) +'/' + fileName
     if os.path.isfile(file):
         os.remove(file)
 
 def rename_and_move_verify_code(code):
-    file = os.path.dirname(__file__) +'/getImg.jpeg'
-    repalceFile = os.path.dirname(__file__) + '/./train/' +code + '.jpeg'
+    file = os.path.dirname(__file__) +'/' + fileName
+    repalceFile = os.path.dirname(__file__) + '/./train/' +code + '.png'
     if os.path.isfile(file):
         os.rename(file, repalceFile)
 

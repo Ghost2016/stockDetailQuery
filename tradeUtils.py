@@ -46,8 +46,8 @@ def isWeekend():
 
 # 当天是可否可以进行交易
 def isInTradeDay():
-    # return True
-    return isInWorkDay() and not isWeekend()
+    return True
+    # return isInWorkDay() and not isWeekend()
 
 
 def printBeforeSleep(now, distance):

@@ -8,6 +8,7 @@ import os
 import pyperclip
 from utils.mydriver import getDriver
 
+fileName = 'getImg.png'
 driver = getDriver()
 
 def saveCode():
@@ -54,7 +55,7 @@ def innerHandle():
     gui.hotkey('enter')
     sleep(1)
     # 解析验证码
-    result=get_verify_code(os.path.dirname(__file__)+'/getImg.jpeg')
+    result=get_verify_code(os.path.dirname(__file__)+'/' + fileName)
     # 填充到网页上去
     gui.moveTo(990,450)
     gui.click()
@@ -70,10 +71,10 @@ def innerHandle():
 def handleSessionError():
     result=getCodeByDriver()
     if len(result) != 6:
-        remove_verify_code(result)
+        remove_verify_code()
         return handleSessionError()
     # 解析后移动验证码
-    remove_verify_code(result)
+    remove_verify_code()
     return result
 
 # 通过chromeDriver获取验证码
@@ -91,12 +92,15 @@ def getCodeByDriver():
         getCodeByDriver()
     # 存储图片
     img.screenshot('./verifyCode/getImg.png')
+    sleep(1)
     # 解析验证码
-    result=get_verify_code(os.path.dirname(__file__)+'/getImg.jpeg')
+    result=get_verify_code(os.path.dirname(__file__)+'/getImg.png')
+    print('result', result)
     input.clear()
     input.send_keys(result)
     # 提交
     button.click()
+    return result
 
 
 if __name__ == '__main__':
