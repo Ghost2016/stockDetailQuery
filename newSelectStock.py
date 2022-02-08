@@ -15,7 +15,8 @@ from meepwn import crawl_data_from_wencai
 
 import pyautogui as gui
 import pyperclip
-from verifyCode.codeUtils import handleSessionError
+from verifyCode.codeUtils import handleSessionError, quitDriver
+
 # 是否是在Mac上进行操作
 isOnMac = (platform.system() == 'Darwin')
 # 是否需要使用微信来发送消息
@@ -73,8 +74,8 @@ def parseIWencai():
     # 如果不在交易时间内
     if(not isInTradeTime()):
         print('未在交易时间内 开始')
+        quitDriver()
         sleepToNextTradeTime()
-        total_stock_list=set()
         print('未在交易时间内 结束')
         return False 
     print('第%s次' % timer)
