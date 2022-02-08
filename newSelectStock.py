@@ -45,8 +45,8 @@ def sendMessage(result):
     headers = {
         'content-type': 'application/json',
     }
-    data = '{\t"msgtype": "text",\t"text": {\t"content": ":%s"} }' % result
-    requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data)
+    data = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"} }' % result
+    requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data.encode("utf-8").decode("latin1"))
 
 # 遍历策略 !
 def parseIWencai():
@@ -71,12 +71,13 @@ def parseIWencai():
     # 获取首次进策略的票
     getFirstInStock(stockList)
     # 休息5s
-    time.sleep(3)
+    time.sleep(2)
     # 次数自加1
     timer=timer + 1
         
 
 if __name__ == '__main__':
+    # sendMessage('是否要清除股票池')
     str=input('是否要清除股票池 ' + 'y/n?')
     if(not str=='n'):
         clearStocks()

@@ -56,8 +56,9 @@ def getCodeByDriver():
 # 关闭浏览器，退出driver
 def quitDriver():
     global driver
-    driver.quit()
-    driver = None
+    if not driver == None:
+        driver.quit()
+        driver = None
 
 if __name__ == '__main__':
     handleSessionError()
