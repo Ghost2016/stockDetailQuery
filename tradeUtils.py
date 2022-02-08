@@ -6,6 +6,8 @@ import datetime
 from chinese_calendar import is_workday
 from pyautogui import sleep
 
+from fileUtils import clearStocks
+
 TIME_NODE = {
     '9': 9,
     '10': 10,
@@ -85,6 +87,12 @@ def sleepToNextTradeTime():
         distance = (TIME_NODE['13'] - hour) * 3600 - minute * 60 - second
     printBeforeSleep(now, distance)
 
+# 检查是否应该执行 clearStock
+def checkClearStock():
+    now=datetime.datetime.now()
+    hour = now.hour
+    if hour == TIME_NODE['9']:
+        clearStocks()
 
 if __name__ == "__main__":
     print(isInTradeTime())

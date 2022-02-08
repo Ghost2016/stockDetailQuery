@@ -7,7 +7,7 @@ import time
 # 用于存放历史股票列表
 from fileUtils import saveStocks, getStocks, clearStocks
 # 交易工具
-from tradeUtils import isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
+from tradeUtils import checkClearStock, isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
 
 from meepwn import crawl_data_from_wencai
 from verifyCode.codeUtils import handleSessionError, quitDriver
@@ -54,6 +54,7 @@ def parseIWencai():
     # 如果不是在交易日
     if(not isInTradeDay()):
         print('不是在交易日 开始')
+        quitDriver()
         sleepToNextTradeDay()
         clearStocks()
         total_stock_list=set()
@@ -64,6 +65,7 @@ def parseIWencai():
         print('未在交易时间内 开始')
         quitDriver()
         sleepToNextTradeTime()
+        checkClearStock()
         print('未在交易时间内 结束')
         return False 
     print('第%s次' % timer)
@@ -74,13 +76,15 @@ def parseIWencai():
     time.sleep(2)
     # 次数自加1
     timer=timer + 1
-        
 
-if __name__ == '__main__':
-    # sendMessage('是否要清除股票池')
+def startQuery():
+    global total_stock_list
     str=input('是否要清除股票池 ' + 'y/n?')
     if(not str=='n'):
         clearStocks()
     total_stock_list = getStocks()
     while True:
         parseIWencai()
+
+if __name__ == '__main__':
+    sendMessage('中兴文化')
