@@ -3,8 +3,6 @@
 #coding: utf-8
 
 import time
-# 用于判断是什么系统
-import platform
 
 # 用于存放历史股票列表
 from fileUtils import saveStocks, getStocks, clearStocks
@@ -12,17 +10,8 @@ from fileUtils import saveStocks, getStocks, clearStocks
 from tradeUtils import isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
 
 from meepwn import crawl_data_from_wencai
-
-import pyautogui as gui
-import pyperclip
 from verifyCode.codeUtils import handleSessionError, quitDriver
-
-# 是否是在Mac上进行操作
-isOnMac = (platform.system() == 'Darwin')
-# 是否需要使用微信来发送消息
-# useWeChatToSendMessage=False
-useWeChatToSendMessage=True
-
+import requests
 
 # 存放当前的票的列表的Set
 current_stock_list = set()
@@ -35,8 +24,6 @@ def getFirstInStock(l):
     if l == '000000':
         # 添加验证码逻辑
         handleSessionError()
-        # 切换到微信
-        useWeChatToSendMessage and gui.hotkey('command','option','shift','w')
         return
     global current_stock_list, total_stock_list
     # print('存放所有的票的列表:', total_stock_list)
@@ -45,20 +32,21 @@ def getFirstInStock(l):
     result = (current_stock_list | total_stock_list) ^ total_stock_list
     if not len(result) == 0:
         print('新进来的票:', result)
-        # 发送微信消息
-        useWeChatToSendMessage and sendMessage(result)
+        # 发消息
+        sendMessage(result)
         # 获取全部的股票的列表
         total_stock_list= total_stock_list | result
         # 保存全部股票的列表
         saveStocks(total_stock_list)
         # pass
 
-# 发送信息（目前是发送到微信）
+# 发送信息（目前是发送到钉钉上）
 def sendMessage(result):
-    # 通过复制粘贴的方式进行更快
-    pyperclip.copy(','.join(result))
-    gui.hotkey('command','v')
-    gui.hotkey('enter')
+    headers = {
+        'content-type': 'application/json',
+    }
+    data = '{\t"msgtype": "text",\t"text": {\t"content": ":%s"} }' % result
+    requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data)
 
 # 遍历策略 !
 def parseIWencai():
@@ -89,20 +77,9 @@ def parseIWencai():
         
 
 if __name__ == '__main__':
-
     str=input('是否要清除股票池 ' + 'y/n?')
     if(not str=='n'):
         clearStocks()
     total_stock_list = getStocks()
-    time.sleep(1)
-
-    # 切换到微信
-    useWeChatToSendMessage and gui.hotkey('command','option','shift','w')
-    time.sleep(1)
-
-    # # 微信消息测试
-    # useWeChatToSendMessage and sendMessage('Ready to run.')
-    time.sleep(1)
-    
     while True:
         parseIWencai()
