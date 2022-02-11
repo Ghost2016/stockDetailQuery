@@ -32,15 +32,18 @@ def getCodeByDriver():
     if not driver:
         driver = getDriver()
     driver.get(iwencaiUrl)
-    img = None
-    button = driver.find_element_by_id('capCheck')
-    input = driver.find_element_by_id('capInput')
+    img, button, input = None, None, None
+    
     # 图片
     try:
+        button = driver.find_element_by_id('capCheck')
+        input = driver.find_element_by_id('capInput')
         img = driver.find_element_by_id('capImg')
+        if (button == None) or (input == None) or (img == None):
+            raise BaseException()
     except BaseException:
-        print("没有找到图片")
-        getCodeByDriver()
+        print("没有找到指定元素")
+        return getCodeByDriver()
     # 存储图片
     img.screenshot('./verifyCode/' + fileName)
     sleep(1)
