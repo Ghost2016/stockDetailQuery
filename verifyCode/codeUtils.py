@@ -62,6 +62,7 @@ def quitDriver():
     if not driver == None:
         driver.quit()
         driver = None
+    driver = None
 
 if __name__ == '__main__':
     handleSessionError()
