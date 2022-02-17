@@ -32,15 +32,19 @@ Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-p
 def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
     response = crawl_source_data(question)
     if response.status_code == 200:
-        html = response.text
-        data = json.loads(html)['data']
-        stockList=set()
-        if 'data' in data:
-            for stock in data['data']:
-                stockList.add(stock['股票简称'])
-            return stockList
-        else:
-            return stockList
+        try:
+            html = response.text
+            data = json.loads(html)['data']
+            stockList=set()
+            if 'data' in data:
+                for stock in data['data']:
+                    stockList.add(stock['股票简称'])
+                return stockList
+            else:
+                return stockList
+        except Exception as e:
+            print('解析页面失败：', e)
+            return crawl_data_from_wencai(question)
     else:
         print("连接访问接口失败")
         handleSessionError()
