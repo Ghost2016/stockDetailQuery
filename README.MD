@@ -2,5 +2,5 @@
 
 启动方式：
 ```shell
-python3 selectStock.py
+./start.sh
 ```
