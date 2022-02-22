@@ -28,28 +28,6 @@ headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 
 Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
 
-
-def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
-    response = crawl_source_data(question)
-    if response.status_code == 200:
-        try:
-            html = response.text
-            data = json.loads(html)['data']
-            stockList=set()
-            if 'data' in data:
-                for stock in data['data']:
-                    stockList.add(stock['股票简称'])
-                return stockList
-            else:
-                return stockList
-        except Exception as e:
-            print('解析页面失败：', e)
-            return crawl_data_from_wencai(question)
-    else:
-        print("连接访问接口失败")
-        handleSessionError()
-        return crawl_data_from_wencai(question)
-
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
     """通过问财接口抓取数据
     
@@ -77,6 +55,28 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
         print(e)
         handleSessionError()
         return crawl_source_data(question)
+
+
+def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
+    response = crawl_source_data(question)
+    if response.status_code == 200:
+        try:
+            html = response.text
+            data = json.loads(html)['data']
+            stockList=set()
+            if 'data' in data:
+                for stock in data['data']:
+                    stockList.add(stock['股票简称'])
+                return stockList
+            else:
+                return stockList
+        except Exception as e:
+            print('解析页面失败：', e)
+            return crawl_data_from_wencai(question)
+    else:
+        print("连接访问接口失败")
+        handleSessionError()
+        return crawl_data_from_wencai(question)
 
 def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上"):
     response = crawl_source_data(question)
@@ -125,5 +125,7 @@ def partTwo():
 
 
 if __name__ == "__main__":
-    partOne()
+    # partOne()
+    print(crawl_data_from_wencai('二连板以上 非st'))
+
 
