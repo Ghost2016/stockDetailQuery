@@ -56,6 +56,26 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
         handleSessionError()
         return crawl_source_data(question)
 
+def crawl_stock_data(question):
+    response = crawl_source_data(question)
+    if response.status_code == 200:
+        try:
+            html = response.text
+            data = json.loads(html)['data']
+            stockList=set()
+            if 'data' in data:
+                for stock in data['data']:
+                    stockList.add(stock)
+                return stockList
+            else:
+                return stockList
+        except Exception as e:
+            print('解析页面失败：', e)
+            return crawl_data_from_wencai(question)
+    else:
+        print("连接访问接口失败")
+        handleSessionError()
+        return crawl_data_from_wencai(question)
 
 def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
     response = crawl_source_data(question)
@@ -65,9 +85,7 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
             data = json.loads(html)['data']
             stockList=set()
             if 'data' in data:
-                for stock in data['data']:
-                    stockList.add(stock['股票简称'])
-                return stockList
+                return data['data']
             else:
                 return stockList
         except Exception as e:
@@ -124,8 +142,25 @@ def partTwo():
     pass
 
 
+def partThree():
+    _day="今日"
+    # _day="昨日"
+    # height_10cm="非st 非创业板 非科创板 非新股"
+    no_st="非st"
+    row_1 = crawl_stock_data(_day+ " 当日涨停 " + no_st)
+    row_2 = crawl_stock_data(_day+ " 曾涨停 " + no_st)
+    row_3 = crawl_stock_data(_day+ " 跌停打开或" + _day +"跌停 " + no_st)
+    row_4 = 'no-data'
+    row_5 = crawl_stock_data(_day+ "涨跌幅<-5% " + no_st)
+    row_6 = -250
+    row_7 = 'no-data'
+    row_8 = 'no-data'
+    row_9 = crawl_stock_data(_day+ " 跌停打开或" + _day +"跌停 " + no_st)
+
+    print(row_1)
+    
 if __name__ == "__main__":
-    # partOne()
-    print(crawl_data_from_wencai('二连板以上 非st'))
+    partThree()
+    # print(crawl_data_from_wencai('二连板以上 非st'))
 
 
