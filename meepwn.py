@@ -105,6 +105,7 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
 
 def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上", day=str(
                     datetime.datetime.now().date()).replace('-', '')):
+    print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
         html = response.text
@@ -128,6 +129,7 @@ def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板�
 
 def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连板以上", day=str(
                     datetime.datetime.now().date()).replace('-', '')):
+    print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
         html = response.text
@@ -197,7 +199,7 @@ def getLastTradeDay(day):
 
 workbook = xlsxwriter.Workbook('hello.xlsx')
 worksheet = workbook.add_worksheet()
-def partTwo(start_date, i):
+def partTwo(start_date, i='1'):
     # start_date = '20220303'
     # start_date=datetime.datetime.now().strftime("%Y%m%d")
     # end_date=datetime.datetime.now().strftime("%Y%m%d")
@@ -227,9 +229,9 @@ def partTwo(start_date, i):
     # 昨日所有涨停真实收益率（包含炸板）
     row_10 = '手动输入'
     # 当天两市最高连板板数
-    row_11 = '手动输入'
+    row_11 = crawl_highest('%s非st 非创业板 非科创板 非新股 二连板以上'% _day)
     # 当天两市次高连板板数
-    row_12 = '手动输入'
+    row_12 = crawl_sub_height('%s非st 非创业板 非科创板 非新股 二连板以上'% _day)
     # ma3涨停
     row_13 = '自动计算'
     # 偏离幅度
@@ -243,23 +245,35 @@ def partTwo(start_date, i):
     worksheet.write('E' + i, row_4)
     worksheet.write('F' + i, row_5)
     worksheet.write('G' + i, row_6)
+    worksheet.write('H' + i, row_7)
+    worksheet.write('I' + i, row_8)
+    worksheet.write('J' + i, row_9)
+    worksheet.write('K' + i, row_10)
+    worksheet.write('L' + i, row_11)
+    worksheet.write('M' + i, row_12)
+    worksheet.write('N' + i, row_13)
+    worksheet.write('O' + i, row_14)
     
 
 
 if __name__ == "__main__":
     
-    cDay = '20220329'
-    for d in range(1, 45):
-        q = '%s非st 非创业板 非科创板 非一字未开板新股 二连板以上'% cDay
-        print(q)
-        # partTwo(cDay, str(21-d))
-        r1 = crawl_highest(q, cDay)
-        r2 = crawl_sub_height(q, cDay)
-        print(r1, r2)
-        worksheet.write('A' + str(46 - d), cDay)
-        worksheet.write('B' + str(46 - d), r1)
-        worksheet.write('C' + str(46 - d), r2)
-        cDay = getLastTradeDay(cDay)
+    cDay = datetime.datetime.now().strftime("%Y%m%d")
+    partTwo(cDay)
+    # q='%s非st 非创业板 非科创板 非新股 二连板以上'% cDay
+    # print(crawl_highest(q))
+    # crawl_sub_height()
+    # for d in range(1, 45):
+    #     q = 
+    #     print(q)
+    #     # partTwo(cDay, str(21-d))
+    #     r1 = crawl_highest(q, cDay)
+    #     r2 = crawl_sub_height(q, cDay)
+    #     print(r1, r2)
+    #     worksheet.write('A' + str(46 - d), cDay)
+    #     worksheet.write('B' + str(46 - d), r1)
+    #     worksheet.write('C' + str(46 - d), r2)
+    #     cDay = getLastTradeDay(cDay)
     workbook.close()
     os.system('open hello.xlsx')
     
