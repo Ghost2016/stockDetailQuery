@@ -44,12 +44,9 @@ start_date=datetime.datetime.now().strftime("%Y%m%d")
 end_date=datetime.datetime.now().strftime("%Y%m%d")
 before_start_date=(datetime.datetime.strptime(start_date, '%Y%m%d')+datetime.timedelta(days=-20)).strftime("%Y%m%d")
 
-start_date='20220322'
 # 兴业矿业(000426)  8.31 10.07 122.60亿 首板涨停 [放量涨停] 小金属
-
-# question = '%s当日涨停 2天2板和3天2板或者连续涨停天数等于2 %s非st %s非新股 %s非创业板块' % (start_date,start_date,start_date,start_date)
-question = '%s当日首板 创业板块 涨停原因类别' % (start_date)
-
+question = '%s涨停 2天2板和3天2板或者连续涨停天数等于2 %s非st %s非新股 %s非创业板块 最终涨停时间先后排序' % (start_date,start_date,start_date,start_date)
+# question = '%s首板 创业板块 涨停原因类别' % (start_date)
 print(question)
 
 
