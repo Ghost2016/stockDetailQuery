@@ -9,7 +9,7 @@ from fileUtils import saveStocks, getStocks, clearStocks
 # 交易工具
 from tradeUtils import checkClearStock, isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
 
-from meepwn import crawl_data_from_wencai
+from meepwn import crawl_stock_name
 from verifyCode.codeUtils import handleSessionError, quitDriver
 import requests
 
@@ -69,7 +69,7 @@ def parseIWencai():
         print('未在交易时间内 结束')
         return False 
     print('第%s次' % timer)
-    stockList = crawl_data_from_wencai()
+    stockList = crawl_stock_name()
     # 获取首次进策略的票
     getFirstInStock(stockList)
     # 休息5s

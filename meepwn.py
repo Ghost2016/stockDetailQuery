@@ -3,6 +3,7 @@
 #coding: utf-8
 
 from copy import deepcopy
+from cv2 import sort
 import requests
 import re
 import json
@@ -31,6 +32,7 @@ headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 
 Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
 
+currentDay = str(datetime.datetime.now().date()).replace('-', '')
 
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
     """通过问财接口抓取数据
@@ -51,7 +53,7 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
     }
     headers_wc = deepcopy(headers)
     headers_wc['User-Agent'] = getUserAgent()
-
+    # print(question)
     try:
         response = requests.get(
             Question_url, params=payload, headers=headers_wc)
@@ -61,26 +63,33 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
         handleSessionError()
         return crawl_source_data(question)
 
-def crawl_stock_data(question):
+def crawl_stock_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
     response = crawl_source_data(question)
     if response.status_code == 200:
         try:
             html = response.text
             data = json.loads(html)['data']
-            stockList = set()
+            stockList = list()
             if 'data' in data:
                 for stock in data['data']:
-                    stockList.add(stock)
+                    stockList.append(stock)
                 return stockList
             else:
                 return stockList
         except Exception as e:
             print('解析页面失败：', e)
-            return crawl_data_from_wencai(question)
+            return crawl_stock_data(question)
     else:
         print("连接访问接口失败")
         handleSessionError()
-        return crawl_data_from_wencai(question)
+        return crawl_stock_data(question)
+
+def crawl_stock_name(question="上一交易日没有涨停 今天涨停后开板 非st"):
+    stockNames = set()
+    stockList = crawl_stock_data(question)
+    for stock in stockList:
+        stockNames.add(stock['股票简称'])
+    return stockNames
 
 
 def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
@@ -103,8 +112,7 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
         return crawl_data_from_wencai(question)
 
 
-def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上", day=str(
-                    datetime.datetime.now().date()).replace('-', '')):
+def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上", day=currentDay):
     print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
@@ -125,10 +133,9 @@ def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板�
     else:
         print("连接访问接口失败")
         handleSessionError()
-        return crawl_data_from_wencai(question)
+        return crawl_highest(question)
 
-def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连板以上", day=str(
-                    datetime.datetime.now().date()).replace('-', '')):
+def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连板以上", day=currentDay):
     print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
@@ -192,21 +199,33 @@ def partOne():
     print(a)
     insert(a)
 
+workbook = xlsxwriter.Workbook('hello.xlsx')
+worksheet = workbook.add_worksheet()
+def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=currentDay):
+    stocks = crawl_stock_data(question)
+    total = 0
+    stocks=sorted(stocks, key=lambda stock : float(stock['最新涨跌幅' ]), reverse=True)
+    # stocks=sorted(stocks, key=lambda stock : float(stock['涨跌幅:前复权[%s]' % day]), reverse=True)
+    for stock in stocks:
+        # print(stock['股票简称'], float(stock['最新涨跌幅']))
+        total += float('%.2f' % float(stock['最新涨跌幅']))
+        # total += float('%.2f' % float(stock['涨跌幅:前复权[%s]' % day]))
+    return float(str('%.2f' % float(total / len(stocks))))
 
 def getLastTradeDay(day):
     dat = getTushareInstance().trade_cal(exchange='', start_date=day, end_date=day)
     return dat.iat[0, 3]
 
-workbook = xlsxwriter.Workbook('hello.xlsx')
-worksheet = workbook.add_worksheet()
+
+
 def partTwo(start_date, i='1'):
     # start_date = '20220303'
     # start_date=datetime.datetime.now().strftime("%Y%m%d")
     # end_date=datetime.datetime.now().strftime("%Y%m%d")
-    end_date = getLastTradeDay(start_date)
+    last_date = getLastTradeDay(start_date)
     _day = start_date
     print(_day + ':')
-    no_st = "非st"
+    no_st = "非st 非退市"
     # 今日涨停封死计数
     row_1 = crawl_length(_day + "涨停 " + no_st)
     # 今日涨停炸版计数
@@ -217,17 +236,17 @@ def partTwo(start_date, i='1'):
     row_4 = -crawl_length(_day + "跌停且非一字跌停 " + no_st)
     # 盘中超跌-5%计数
     row_5 = -crawl_length((" %s最低价格/%s收盘价格小于0.95 " %
-                         (start_date, end_date)) + no_st)
+                         (start_date, last_date)) + no_st)
     # 收盘超跌-5%计数
     row_6 = -crawl_length(_day + " 跌幅大于5% " + no_st)
     # 阈值
-    row_7 = '-250'
+    row_7 = -250
     # 打板当日封板率
     row_8 = '自动计算'
     # 昨日所有涨停收益率（不包含炸板）
-    row_9 = '手动输入'
+    row_9 = crawl_earning_of_stocks()
     # 昨日所有涨停真实收益率（包含炸板）
-    row_10 = '手动输入'
+    row_10 = crawl_earning_of_stocks('%s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市' % (last_date,last_date,last_date,last_date))
     # 当天两市最高连板板数
     row_11 = crawl_highest('%s非st 非创业板 非科创板 非新股 二连板以上'% _day)
     # 当天两市次高连板板数
@@ -257,23 +276,22 @@ def partTwo(start_date, i='1'):
 
 
 if __name__ == "__main__":
-    
-    cDay = datetime.datetime.now().strftime("%Y%m%d")
+    cDay=datetime.datetime.now().strftime("%Y%m%d")
+    # cDay = '20220221'
+    # _day = cDay
     partTwo(cDay)
-    # q='%s非st 非创业板 非科创板 非新股 二连板以上'% cDay
-    # print(crawl_highest(q))
-    # crawl_sub_height()
-    # for d in range(1, 45):
-    #     q = 
-    #     print(q)
+    # cDay=datetime.datetime.now().strftime("%Y%m%d")
+    # max=10
+    # for d in range(1, max):
+    #     lastDay = getLastTradeDay(cDay)
     #     # partTwo(cDay, str(21-d))
-    #     r1 = crawl_highest(q, cDay)
-    #     r2 = crawl_sub_height(q, cDay)
-    #     print(r1, r2)
-    #     worksheet.write('A' + str(46 - d), cDay)
-    #     worksheet.write('B' + str(46 - d), r1)
-    #     worksheet.write('C' + str(46 - d), r2)
-    #     cDay = getLastTradeDay(cDay)
+    #     r1 = str('%.2f' % crawl_earning_of_stocks('%s涨停 非st 非新股 非退市 %s涨跌幅' % (lastDay,_day), _day))
+    #     r2 = str('%.2f' % crawl_earning_of_stocks('%s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (lastDay, lastDay, lastDay, lastDay, _day), _day))
+    #     print(cDay,r1, r2)
+    #     worksheet.write('A' + str(max - d), cDay)
+    #     worksheet.write('B' + str(max - d), r1)
+    #     worksheet.write('C' + str(max - d), r2)
+    #     cDay = lastDay
     workbook.close()
     os.system('open hello.xlsx')
     
