@@ -9,9 +9,12 @@ import pandas as pd
 import tushare as ts
 import os
 
+from tushareUtils import getCurrentTradeDay
+
 token='cee7373f5534cd6ac10783e468db6710767cf637007930de27ce3a08'
 ts.set_token(token)
 pro = ts.pro_api()
+currentDay = getCurrentTradeDay()
 
 arr = ['股票简称', 'hqCode']
 timearr = ['几天几板','涨停类型', '涨停原因类别']
@@ -34,7 +37,7 @@ def printBaseData(data, t):
         data['data'].sort(key=lambda k: (k.get('hqCode')))
         for index, stock in enumerate(data['data']):
             stock_str_name+=stock['股票简称']+'\n'
-            stock_str_up_reaseon+=stock.get('涨停原因类别[%s]' % t, '未知类型')+ '\n'
+            stock_str_up_reaseon+=stock.get('涨停原因类别[%s]' % t, stock.get('涨停原因类别[%s]' % currentDay, '未知类型'))+ '\n'
             stock_str_up_time+=stock.get('几天几板[%s]' % t, '其他连扳类型')+ '\n'
     print(stock_str_name)
     print(stock_str_up_reaseon)
@@ -42,11 +45,11 @@ def printBaseData(data, t):
 
 start_date=datetime.datetime.now().strftime("%Y%m%d")
 end_date=datetime.datetime.now().strftime("%Y%m%d")
-before_start_date=(datetime.datetime.strptime(start_date, '%Y%m%d')+datetime.timedelta(days=-20)).strftime("%Y%m%d")
+before_start_date=(datetime.datetime.strptime(start_date, '%Y%m%d')+datetime.timedelta(days=-5)).strftime("%Y%m%d")
 
 # 兴业矿业(000426)  8.31 10.07 122.60亿 首板涨停 [放量涨停] 小金属
 question = '%s涨停 2天2板和3天2板或者连续涨停天数等于2 %s非st %s非新股 %s非创业板块 最终涨停时间先后排序' % (start_date,start_date,start_date,start_date)
-# question = '%s首板 创业板块 涨停原因类别' % (start_date)
+# question = '%s首板 创业板块 %s涨停原因类别 %s非st' % (start_date, start_date)
 print(question)
 
 

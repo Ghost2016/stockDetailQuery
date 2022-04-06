@@ -7,7 +7,7 @@ from cv2 import sort
 import requests
 import re
 import json
-from tushareUtils import getTushareInstance
+from tushareUtils import getCurrentTradeDay, getLastTradeDay
 
 from utils.user_agent import getUserAgent
 
@@ -32,7 +32,7 @@ headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
 
 Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-pick"
 
-currentDay = str(datetime.datetime.now().date()).replace('-', '')
+currentDay = getCurrentTradeDay()
 
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
     """通过问财接口抓取数据
@@ -53,7 +53,6 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
     }
     headers_wc = deepcopy(headers)
     headers_wc['User-Agent'] = getUserAgent()
-    # print(question)
     try:
         response = requests.get(
             Question_url, params=payload, headers=headers_wc)
@@ -92,7 +91,7 @@ def crawl_stock_name(question="上一交易日没有涨停 今天涨停后开板
     return stockNames
 
 
-def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后开板 非st"):
+def crawl_length(question="上一交易日没有涨停 今天涨停后开板 非st"):
     response = crawl_source_data(question)
     if response.status_code == 200:
         try:
@@ -100,16 +99,16 @@ def crawl_data_from_wencai(question="上一交易日没有涨停 今天涨停后
             data = json.loads(html)['data']
             stockList = set()
             if 'data' in data:
-                return data['data']
+                return len(data['data'])
             else:
-                return stockList
+                return -1
         except Exception as e:
             print('解析页面失败：', e)
-            return crawl_data_from_wencai(question)
+            return crawl_length(question)
     else:
         print("连接访问接口失败")
         handleSessionError()
-        return crawl_data_from_wencai(question)
+        return crawl_length(question)
 
 
 def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上", day=currentDay):
@@ -160,7 +159,7 @@ def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连�
     else:
         print("连接访问接口失败")
         handleSessionError()
-        return crawl_data_from_wencai(question)
+        return crawl_sub_height(question)
 
 
 def crawl_length(question="非st 非创业板 非科创板 非新股 二连板以上"):
@@ -176,20 +175,20 @@ def crawl_length(question="非st 非创业板 非科创板 非新股 二连板�
     else:
         print("连接访问接口失败")
         handleSessionError()
-        return crawl_data_from_wencai(question)
+        return crawl_length(question)
 
 
 def partOne():
     _day = "今日"
     # _day="昨日"
     height_10cm = "非st 非创业板 非科创板 非新股"
-    up_all = len(crawl_data_from_wencai(_day + "涨幅大于0"))
-    down_all = len(crawl_data_from_wencai(_day + "涨幅小于0"))
-    up_5 = len(crawl_data_from_wencai(_day + "涨幅大于5 " + height_10cm))
-    down_5 = len(crawl_data_from_wencai(_day + "跌幅大于5 " + height_10cm))
-    up_num = len(crawl_data_from_wencai(_day + "涨停" + height_10cm))
-    down_num = len(crawl_data_from_wencai(_day + "跌停 " + height_10cm))
-    up_10_2 = len(crawl_data_from_wencai(_day + "二连板 " + height_10cm))
+    up_all = crawl_length(_day + "涨幅大于0")
+    down_all = crawl_length(_day + "涨幅小于0")
+    up_5 = crawl_length(_day + "涨幅大于5 " + height_10cm)
+    down_5 = crawl_length(_day + "跌幅大于5 " + height_10cm)
+    up_num = crawl_length(_day + "涨停" + height_10cm)
+    down_num = crawl_length(_day + "跌停 " + height_10cm)
+    up_10_2 = crawl_length(_day + "二连板 " + height_10cm)
     up_highest = crawl_highest(_day + "二连板以上 " + height_10cm)
 
     a = Sentiment(str(datetime.datetime.now().date()), up_5=up_5, down_5=down_5, up_num=up_num,
@@ -201,20 +200,17 @@ def partOne():
 
 workbook = xlsxwriter.Workbook('hello.xlsx')
 worksheet = workbook.add_worksheet()
-def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=currentDay):
+def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市'):
+    print(question)
     stocks = crawl_stock_data(question)
     total = 0
+    index = 0
     stocks=sorted(stocks, key=lambda stock : float(stock['最新涨跌幅' ]), reverse=True)
-    # stocks=sorted(stocks, key=lambda stock : float(stock['涨跌幅:前复权[%s]' % day]), reverse=True)
     for stock in stocks:
-        # print(stock['股票简称'], float(stock['最新涨跌幅']))
+        index+=1
+        print(index, stock['股票简称'],stock['最新涨跌幅'])
         total += float('%.2f' % float(stock['最新涨跌幅']))
-        # total += float('%.2f' % float(stock['涨跌幅:前复权[%s]' % day]))
     return float(str('%.2f' % float(total / len(stocks))))
-
-def getLastTradeDay(day):
-    dat = getTushareInstance().trade_cal(exchange='', start_date=day, end_date=day)
-    return dat.iat[0, 3]
 
 
 
