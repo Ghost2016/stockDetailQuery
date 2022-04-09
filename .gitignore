@@ -9,3 +9,5 @@ chromedriver.**
 chromedriver**
 *.pyc
 *.ini
+
+my.xlsx
