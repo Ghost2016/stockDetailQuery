@@ -9,7 +9,7 @@ import pandas as pd
 import tushare as ts
 import os
 
-from tushareUtils import getCurrentTradeDay
+from tushareUtils import getCurrentTradeDay, getLastSpecificTradeDay, getLastTradeDay
 
 token='cee7373f5534cd6ac10783e468db6710767cf637007930de27ce3a08'
 ts.set_token(token)
@@ -43,14 +43,23 @@ def printBaseData(data, t):
     print(stock_str_up_reaseon)
     print(stock_str_up_time)
 
-start_date=datetime.datetime.now().strftime("%Y%m%d")
+# 获取当日的详情用
+# start_date=currentDay
+# end_date=datetime.datetime.now().strftime("%Y%m%d")
+# before_start_date=(datetime.datetime.strptime(start_date, '%Y%m%d')+datetime.timedelta(days=-5)).strftime("%Y%m%d")
+
+
+# 获取指定日期的详情用
+# start_date='20220401'
+start_date=getLastSpecificTradeDay(1, '20220401')
 end_date=datetime.datetime.now().strftime("%Y%m%d")
-before_start_date=(datetime.datetime.strptime(start_date, '%Y%m%d')+datetime.timedelta(days=-5)).strftime("%Y%m%d")
+before_start_date=(datetime.datetime.strptime(end_date, '%Y%m%d')+datetime.timedelta(days=-1)).strftime("%Y%m%d")
+
 
 # 兴业矿业(000426)  8.31 10.07 122.60亿 首板涨停 [放量涨停] 小金属
 question = '%s涨停 2天2板和3天2板或者连续涨停天数等于2 %s非st %s非新股 %s非创业板块 最终涨停时间先后排序' % (start_date,start_date,start_date,start_date)
-# question = '%s首板 创业板块 %s涨停原因类别 %s非st' % (start_date, start_date)
-print(question)
+# question = '%s首板 创业板块 %s涨停原因类别 非st' % (start_date, start_date)
+# print(question)
 
 
 
