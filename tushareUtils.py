@@ -4,9 +4,32 @@
 import datetime
 import tushare as ts
 
+# 用于存日期的字典的文件名
+file='./autoFile/date.txt'
 token='cee7373f5534cd6ac10783e468db6710767cf637007930de27ce3a08'
 ts.set_token(token)
 pro = ts.pro_api()
+ 
+lastDayMap= {}
+
+#保存
+def saveFile():
+    global lastDayMap
+    f = open(file, 'w')
+    f.write(str(lastDayMap))
+    f.close()
+    pass
+
+#读取
+def readFile():
+    global lastDayMap
+    f = open(file, 'r')
+    a = f.read()
+    lastDayMap = eval(a)
+    f.close()
+    pass
+
+readFile()
 
 def getTushareInstance():
     return pro
@@ -23,7 +46,11 @@ def getCurrentTradeDay():
 
 # 获取上一个交易日
 def getLastTradeDay(day=getCurrentTradeDay()):
+    if day in lastDayMap:
+        return lastDayMap[day]
     dat = getTushareInstance().trade_cal(exchange='', start_date=day, end_date=day)
+    lastDayMap[day] = dat.iat[0, 3]
+    saveFile()
     return dat.iat[0, 3]
 
 # 获取上N个交易日
@@ -37,4 +64,5 @@ def getLastSpecificTradeDay(num, day=getCurrentTradeDay()):
     return day
 
 if __name__ == "__main__":
-    print(getLastSpecificTradeDay(11))
+    dat = getTushareInstance().trade_cal(exchange='', start_date='20220331', end_date='20220408')
+    print(dat)
