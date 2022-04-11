@@ -3,6 +3,7 @@
 #coding: utf-8
 
 from copy import deepcopy
+from time import sleep
 from cv2 import sort
 import requests
 import re
@@ -35,6 +36,8 @@ Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-p
 currentDay = getCurrentTradeDay()
 
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
+    sleep(1)
+    print(question)
     """通过问财接口抓取数据
 
     Arguments:
@@ -112,7 +115,7 @@ def crawl_length(question="上一交易日没有涨停 今天涨停后开板 非
 
 
 def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板以上", day=currentDay):
-    print(question)
+    # print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
         html = response.text
@@ -135,7 +138,7 @@ def crawl_highest(question="非st 非创业板 非科创板 非新股 二连板�
         return crawl_highest(question)
 
 def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连板以上", day=currentDay):
-    print(question)
+    # print(question)
     response = crawl_source_data(question)
     if response.status_code == 200:
         html = response.text
@@ -163,13 +166,11 @@ def crawl_sub_height(question="非st 非创业板 非科创板 非新股 二连�
 
 
 def crawl_length(question="非st 非创业板 非科创板 非新股 二连板以上"):
-    print('question:', question)
     response = crawl_source_data(question)
     if response.status_code == 200:
         html = response.text
         data = json.loads(html)['data']
         if 'data' in data:
-            print(len(data['data']))
             return len(data['data'])
         return '读取数据失败'
     else:
@@ -200,18 +201,52 @@ def partOne():
 
 workbook = xlsxwriter.Workbook('hello.xlsx')
 worksheet = workbook.add_worksheet()
-def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市'):
-    print(question)
+
+# 过滤空数据(可能是停牌引起的无数据的问题)，这类股票直接过滤掉
+def filterNone(stock, day):
+    # if stock['股票简称'] == '北方国际':
+    #     print(stock)
+    return stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0)) != None
+
+
+def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay(), showDetail=False):
+    # print(question)
     stocks = crawl_stock_data(question)
     total = 0
     index = 0
-    stocks=sorted(stocks, key=lambda stock : float(stock['最新涨跌幅' ]), reverse=True)
+    # 过滤空数据
+    stocks = filter(lambda x: filterNone(x, day), stocks)
+
+    # 可能有停牌的票，则取0
+    stocks=sorted(stocks, key=lambda stock : float(stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0))), reverse=True)
     for stock in stocks:
         index+=1
-        print(index, stock['股票简称'],stock['最新涨跌幅'])
-        total += float('%.2f' % float(stock['最新涨跌幅']))
+        if showDetail:
+            print(index, stock['股票简称'],stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0)))
+         # 可能有停牌的票，则取0
+        total += float('%.2f' % float(stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0))))
+    if len(stocks) == 0:
+        return '-'
     return float(str('%.2f' % float(total / len(stocks))))
 
+def crawl_lost_of_stocks(question='曾涨停', day=getCurrentTradeDay()):
+    # print(question)
+    stocks = crawl_stock_data(question)
+    total = 0
+    upTotal = 0
+    index = 0
+    stocks=sorted(stocks, key=lambda stock : float(stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0) )), reverse=True)
+    for stock in stocks:
+        topValue = stock['涨停价[%s]' % day]
+        closeValue = stock['收盘价:不复权[%s]' % day]
+        lastDayCloseValue = stock['收盘价:不复权[%s]' % getLastTradeDay(day)]
+        percent = (float(topValue) - float(closeValue))/lastDayCloseValue * 100
+        index+=1
+        # print(index, stock['股票简称'], '回撤值', percent)
+        total += float('%.2f' % float(percent))
+    if len(stocks) == 0:
+        return '-'
+    return -float(str('%.2f' % float(total / len(stocks))))
 
 
 def partTwo(start_date, i='1'):
@@ -231,7 +266,7 @@ def partTwo(start_date, i='1'):
     # 收盘带量封死跌停计数
     row_4 = -crawl_length(_day + "跌停且非一字跌停 " + no_st)
     # 盘中超跌-5%计数
-    row_5 = -crawl_length((" %s最低价格/%s收盘价格小于0.95 " %
+    row_5 = -crawl_length(("%s最低价格/%s收盘价格小于0.95 " %
                          (start_date, last_date)) + no_st)
     # 收盘超跌-5%计数
     row_6 = -crawl_length(_day + " 跌幅大于5% " + no_st)
@@ -240,7 +275,7 @@ def partTwo(start_date, i='1'):
     # 打板当日封板率
     row_8 = '自动计算'
     # 昨日所有涨停收益率（不包含炸板）
-    row_9 = crawl_earning_of_stocks()
+    row_9 = crawl_earning_of_stocks('%s涨停 非st 非新股 非退市' % last_date)
     # 昨日所有涨停真实收益率（包含炸板）
     row_10 = crawl_earning_of_stocks('%s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市' % (last_date,last_date,last_date,last_date))
     # 当天两市最高连板板数
@@ -273,7 +308,7 @@ def partTwo(start_date, i='1'):
 
 if __name__ == "__main__":
     cDay=datetime.datetime.now().strftime("%Y%m%d")
-    # cDay = '20220221'
+    # cDay = '20220407'
     # _day = cDay
     partTwo(cDay)
     # cDay=datetime.datetime.now().strftime("%Y%m%d")
