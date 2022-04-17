@@ -170,9 +170,9 @@ a={
 
 def getHistoryData():
     global hasWriteHeader, a
-    daylength = 60
-    currentDay = '20210914'
-    # currentDay = getCurrentTradeDay()
+    daylength = 1
+    # currentDay = '20210914'
+    currentDay = getCurrentTradeDay()
     for i in range(0, daylength):
         values = getData(currentDay)
         # values= a[currentDay]
