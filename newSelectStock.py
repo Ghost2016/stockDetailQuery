@@ -7,7 +7,7 @@ import time
 # 用于存放历史股票列表
 from fileUtils import saveStocks, getStocks, clearStocks
 # 交易工具
-from tradeUtils import checkClearStock, isInTradeTime, isInTradeDay, sleepToNextTradeTime, sleepToNextTradeDay
+from tradeUtils import checkClearStock, isInTradeTime, isInTradeDay, sendMessage, sleepToNextTradeTime, sleepToNextTradeDay
 
 from meepwn import crawl_stock_name
 from verifyCode.codeUtils import handleSessionError, quitDriver
@@ -40,14 +40,6 @@ def getFirstInStock(l):
         saveStocks(total_stock_list)
         # pass
 
-# 发送信息（目前是发送到钉钉上）
-def sendMessage(result):
-    headers = {
-        'content-type': 'application/json',
-    }
-    data = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"} }' % result
-    requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data.encode("utf-8").decode("latin1"))
-
 # 遍历策略 !
 def parseIWencai():
     global timer,total_stock_list
@@ -70,6 +62,7 @@ def parseIWencai():
         return False 
     print('第%s次' % timer)
     stockList = crawl_stock_name()
+    # stockList = crawl_stock_name('昨日未涨停 当日涨停 非st')
     # 获取首次进策略的票
     getFirstInStock(stockList)
     # 休息5s
@@ -87,4 +80,5 @@ def startQuery():
         parseIWencai()
 
 if __name__ == '__main__':
-    sendMessage('中兴文化')
+    # sendMessage('发送首次涨停的票')
+    startQuery()

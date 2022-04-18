@@ -307,7 +307,7 @@ def partTwo(start_date, i='1'):
 
 
 if __name__ == "__main__":
-    cDay=datetime.datetime.now().strftime("%Y%m%d")
+    cDay=getCurrentTradeDay()
     # cDay = '20220407'
     # _day = cDay
     partTwo(cDay)

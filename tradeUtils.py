@@ -7,6 +7,7 @@ from chinese_calendar import is_workday
 from pyautogui import sleep
 
 from fileUtils import clearStocks
+import requests
 
 TIME_NODE = {
     '9': 9,
@@ -93,6 +94,15 @@ def checkClearStock():
     hour = now.hour
     if hour == TIME_NODE['9']:
         clearStocks()
+
+# 发送信息（目前是发送到钉钉上）
+def sendMessage(result):
+    headers = {
+        'content-type': 'application/json',
+    }
+    data = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"} }' % result
+    requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data.encode("utf-8").decode("latin1"))
+
 
 if __name__ == "__main__":
     print(isInTradeTime())
