@@ -135,11 +135,11 @@ def getCategories(day):
     },
     {
       'text': '昨日破板平均收益',
-      'func': crawl_earning_of_stocks('%s曾涨停 %s' % (lastTradeDay,  no_st + no_new), currentDay)
+      'func': crawl_earning_of_stocks('%s曾涨停 %s涨跌幅 %s' % (lastTradeDay, currentDay,  no_st + no_new), currentDay)
     },
     {
       'text': '昨日所有涨停真实收益率（包含炸板）',
-      'func': crawl_earning_of_stocks('%s涨停或者曾涨停 %s' % (lastTradeDay,  no_st + no_new), currentDay)
+      'func': crawl_earning_of_stocks('%s涨停或者曾涨停 %s涨跌幅 %s' % (lastTradeDay, currentDay, no_st + no_new), currentDay)
     },
   ]
 
@@ -171,7 +171,7 @@ a={
 def getHistoryData():
     global hasWriteHeader, a
     daylength = 1
-    # currentDay = '20210914'
+    # currentDay = '20210205'
     currentDay = getCurrentTradeDay()
     for i in range(0, daylength):
         values = getData(currentDay)

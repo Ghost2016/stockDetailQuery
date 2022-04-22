@@ -36,7 +36,7 @@ Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-p
 currentDay = getCurrentTradeDay()
 
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
-    sleep(1)
+    sleep(0.5)
     print(question)
     """通过问财接口抓取数据
 
