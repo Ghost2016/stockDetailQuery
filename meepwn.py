@@ -59,6 +59,7 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
     try:
         response = requests.get(
             Question_url, params=payload, headers=headers_wc)
+        # print(response)
         return response
     except Exception as e:
         print(e)
@@ -208,6 +209,12 @@ def filterNone(stock, day):
     #     print(stock)
     return stock.get('涨跌幅:前复权[%s]' % day,  stock.get('最新涨跌幅', 0)) != None
 
+# 获取指数的涨跌幅
+def crawl_index(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay()):
+    stocks = crawl_stock_data(question)
+    percentage = stocks[0]['指数@涨跌幅:前复权[%s]' % day]
+    return float(str('%.2f' % percentage))
+
 
 def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay(), showDetail=False):
     # print(question)
@@ -275,13 +282,13 @@ def partTwo(start_date, i='1'):
     # 打板当日封板率
     row_8 = '自动计算'
     # 昨日所有涨停收益率（不包含炸板）
-    row_9 = crawl_earning_of_stocks('%s涨停 非st 非新股 非退市' % last_date)
+    row_9 = crawl_earning_of_stocks('%s涨跌幅 %s涨停 非st 非新股 非退市' % (_day, last_date), _day, True)
     # 昨日所有涨停真实收益率（包含炸板）
-    row_10 = crawl_earning_of_stocks('%s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市' % (last_date,last_date,last_date,last_date))
+    row_10 = crawl_earning_of_stocks('%s涨跌幅 %s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市' % (_day, last_date,last_date,last_date,last_date), _day, True)
     # 当天两市最高连板板数
-    row_11 = crawl_highest('%s非st 非创业板 非科创板 非新股 二连板以上'% _day)
+    row_11 = crawl_highest('%s非st 非创业板 非科创板 非新股 二连板以上'% _day, _day)
     # 当天两市次高连板板数
-    row_12 = crawl_sub_height('%s非st 非创业板 非科创板 非新股 二连板以上'% _day)
+    row_12 = crawl_sub_height('%s非st 非创业板 非科创板 非新股 二连板以上'% _day, _day)
     # ma3涨停
     row_13 = '自动计算'
     # 偏离幅度
@@ -303,26 +310,41 @@ def partTwo(start_date, i='1'):
     worksheet.write('M' + i, row_12)
     worksheet.write('N' + i, row_13)
     worksheet.write('O' + i, row_14)
-    
+
+def getRate(_day):
+    max=50
+    for d in range(1, max):
+        lastDay = getLastTradeDay(_day)
+        # partTwo(cDay, str(21-d))
+        r1 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停 非st 非新股 非退市 %s涨跌幅' % (_day, lastDay,_day), _day))
+        r2 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (_day, lastDay, lastDay, lastDay, lastDay, _day), _day))
+        print(_day,r1, r2)
+        worksheet.write('A' + str(max - d), _day)
+        worksheet.write('B' + str(max - d), r1)
+        worksheet.write('C' + str(max - d), r2)
+        _day = lastDay
+    workbook.close()
+    os.system('open hello.xlsx')
 
 
 if __name__ == "__main__":
+    # print(111)
     cDay=getCurrentTradeDay()
-    # cDay = '20220407'
-    # _day = cDay
-    partTwo(cDay)
-    # cDay=datetime.datetime.now().strftime("%Y%m%d")
-    # max=10
-    # for d in range(1, max):
-    #     lastDay = getLastTradeDay(cDay)
-    #     # partTwo(cDay, str(21-d))
-    #     r1 = str('%.2f' % crawl_earning_of_stocks('%s涨停 非st 非新股 非退市 %s涨跌幅' % (lastDay,_day), _day))
-    #     r2 = str('%.2f' % crawl_earning_of_stocks('%s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (lastDay, lastDay, lastDay, lastDay, _day), _day))
-    #     print(cDay,r1, r2)
-    #     worksheet.write('A' + str(max - d), cDay)
-    #     worksheet.write('B' + str(max - d), r1)
-    #     worksheet.write('C' + str(max - d), r2)
-    #     cDay = lastDay
+    # cDay='20220426'
+    # partTwo(cDay)
+    _day = cDay
+    # getRate(cDay)
+    max=5
+    for d in range(1, max):
+        lastDay = getLastTradeDay(_day)
+        partTwo(_day, str(21-d))
+        # r1 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停 非st 非新股 非退市 %s涨跌幅' % (_day, lastDay,_day), _day))
+        # r2 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (_day, lastDay, lastDay, lastDay, lastDay, _day), _day))
+        # print(_day,r1, r2)
+        # worksheet.write('A' + str(max - d), _day)
+        # worksheet.write('B' + str(max - d), r1)
+        # worksheet.write('C' + str(max - d), r2)
+        _day = lastDay
     workbook.close()
     os.system('open hello.xlsx')
     

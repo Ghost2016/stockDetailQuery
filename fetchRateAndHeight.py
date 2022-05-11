@@ -3,16 +3,22 @@
 
 # 此文件用于获取各类策略的收益率
 
-from meepwn import crawl_earning_of_stocks, crawl_highest, crawl_length, crawl_lost_of_stocks
+from meepwn import crawl_earning_of_stocks, crawl_highest, crawl_length, crawl_lost_of_stocks, crawl_index
 from tushareUtils import getCurrentTradeDay, getLastTradeDay, getTushareInstance
 import xlsxwriter
 import os
 import datetime
 fileName = 'rateAndHeight.xlsx'
 workbook = xlsxwriter.Workbook(fileName)
+cell_format = workbook.add_format({
+    'bold': True,
+    'align':    'center',
+    'valign':   'vcenter',
+})
+
 worksheet = workbook.add_worksheet()
 letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-          'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ']
+          'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK']
 
 no_st = " 非st 非北交所票 非退市"
 no_new = ' 非新股'
@@ -141,6 +147,10 @@ def getCategories(day):
       'text': '昨日所有涨停真实收益率（包含炸板）',
       'func': crawl_earning_of_stocks('%s涨停或者曾涨停 %s涨跌幅 %s' % (lastTradeDay, currentDay, no_st + no_new), currentDay)
     },
+    {
+      'text': '上证涨跌幅',
+      'func': crawl_index('%s上证涨跌幅' % currentDay, currentDay)
+    },
   ]
 
 # 获取数据
@@ -165,13 +175,13 @@ def getData(day = getCurrentTradeDay()):
     return values
 
 a={
-  # '20211214': [17, 23, 62, 15, 7, 3, 1, 4, 11, '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', 1, 3.2, -0.58, 2.09, 7.21, -1.91, 5.11, 7.74, -4.47, 5.3, 0.23, -4.34, -1.89, -1.94],
+  '20211214': [17, 23, 62, 15, 7, 3, 1, 4, 11, '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', 1, 3.2, -0.58, 2.09, 7.21, -1.91, 5.11, 7.74, -4.47, 5.3, 0.23, -4.34, -1.89, -1.94],
 }
 
 def getHistoryData():
     global hasWriteHeader, a
     daylength = 1
-    # currentDay = '20210205'
+    # currentDay = '20211214'
     currentDay = getCurrentTradeDay()
     for i in range(0, daylength):
         values = getData(currentDay)
@@ -183,14 +193,24 @@ def getHistoryData():
         currentDay = getLastTradeDay(currentDay)
         hasWriteHeader = True
 
+def setColumnWidth():
+    # 日期
+    worksheet.set_column(0, 0, 10, cell_format)
+    # 数量
+    worksheet.set_column(1, 9, 3.5, cell_format)
+    # 率
+    worksheet.set_column(10, 36, 5.2, cell_format)
+    # 跌停数量
+    worksheet.set_column(22, 22, 3.5, cell_format)
 
 if __name__ == "__main__":
     try:
         getHistoryData()
+        setColumnWidth()
         workbook.close()
     except Exception as e:
         print(e)
+        setColumnWidth()
         workbook.close()
     os.system('open %s' % fileName)
-    # 昨天连板数量前5 非新股 非st
 
