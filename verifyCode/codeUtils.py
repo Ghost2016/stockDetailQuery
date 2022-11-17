@@ -10,6 +10,7 @@ from time import sleep
 from verifyCode.getCode import get_verify_code, remove_verify_code
 import os
 from utils.mydriver import getDriver
+from selenium.webdriver.common.by import By
 
 fileName = 'getImg.png'
 driver = None
@@ -36,9 +37,9 @@ def getCodeByDriver():
     
     # 图片
     try:
-        button = driver.find_element_by_id('capCheck')
-        input = driver.find_element_by_id('capInput')
-        img = driver.find_element_by_id('capImg')
+        button = driver.find_element(By.ID,'capCheck')
+        input = driver.find_element(By.ID,'capInput')
+        img = driver.find_element(By.ID,'capImg')
         if (button == None) or (input == None) or (img == None):
             raise BaseException()
     except BaseException:
