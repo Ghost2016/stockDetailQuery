@@ -59,7 +59,6 @@ def get_verify_code(img_path):
     result = base64_api(uname, password, img=img_path, typeid=3)
     return result
 
-
 def remove_verify_code():
     file = os.path.dirname(__file__) +'/' + fileName
     if os.path.isfile(file):
@@ -72,4 +71,6 @@ def rename_and_move_verify_code(code):
         os.rename(file, repalceFile)
 
 if __name__ == "__main__":
-    rename_and_move_verify_code('cwde32')
+    # rename_and_move_verify_code('cwde32')
+    code = get_verify_code(os.path.dirname(__file__) + "/tttt.png")
+    print(code)

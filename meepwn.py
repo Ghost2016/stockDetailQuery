@@ -36,7 +36,7 @@ Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-p
 currentDay = getCurrentTradeDay()
 
 def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
-    sleep(0.5)
+    sleep(1)
     print(question)
     """通过问财接口抓取数据
 
@@ -171,8 +171,8 @@ def crawl_length(question="非st 非创业板 非科创板 非新股 二连板�
     if response.status_code == 200:
         html = response.text
         data = json.loads(html)['data']
-        if 'data' in data:
-            return len(data['data'])
+        if 'analyze_data' in data:
+            return data['analyze_data']['total']
         return '读取数据失败'
     else:
         print("连接访问接口失败")
@@ -213,7 +213,7 @@ def filterNone(stock, day):
 def crawl_index(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay()):
     stocks = crawl_stock_data(question)
     percentage = stocks[0]['指数@涨跌幅:前复权[%s]' % day]
-    return float(str('%.2f' % percentage))
+    return str('%.2f' % float(percentage))
 
 
 def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay(), showDetail=False):

@@ -18,10 +18,10 @@ cell_format = workbook.add_format({
 
 worksheet = workbook.add_worksheet()
 letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-          'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK']
+          'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT']
 
 no_st = " 非st 非北交所票 非退市"
-no_new = ' 非新股'
+no_new = ' 非新股 '
 # 定义填充头部
 hasWriteHeader = False
 
@@ -39,7 +39,6 @@ def autoCal(text):
         'text': text,
         'func': '自动计算'
     }
-
 
 # 新股需要手动去进行修正
 # 搜索首板的时候不能搜索首板，匹配的是【几天几板是首板】，如果之前有过涨停的就不会被归纳到这个里面来
@@ -91,7 +90,7 @@ def getCategories(day):
     autoCal('中高位晋级率(3板+)'),
     autoCal('总情绪'),
     {
-      'category': '%s跌停 %s' % (currentDay, no_st + no_new),
+      'category': '%s跌停 %s' % (currentDay, no_st),
       'text': '跌停',
       'method': crawl_length
     },
@@ -151,6 +150,31 @@ def getCategories(day):
       'text': '上证涨跌幅',
       'func': crawl_index('%s上证涨跌幅' % currentDay, currentDay)
     },
+    {
+      'category': '%s最低价格/%s收盘价格小于0.95 %s' % (currentDay, lastTradeDay, no_st),
+      'text': '盘中超跌-5%计数',
+      'method': crawl_length
+    },
+    {
+      'text': '昨日的首板今日红盘个数',
+      'func': crawl_length('%s涨跌幅大于0 %s涨停 %s未涨停 %s' % (currentDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+      },
+      {
+      'text': '昨日的首板今日大面个数',
+      'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s涨停 %s未涨停 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+      },
+      {
+      'text': '昨日的连板今日红盘个数',
+      'func': crawl_length('%s涨跌幅大于0 %s连续涨停天数为2以上 %s' % (currentDay, lastTradeDay, no_st + no_new))
+      },
+      {
+      'text': '昨日的连板今日大面个数',
+      'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s连续涨停天数为2以上 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, no_st + no_new))
+      },
+      {
+      'text': '昨日的连板今日绿盘个数',
+      'func': crawl_length('%s涨跌幅小于0 %s连续涨停天数为2以上 %s' % (currentDay, lastTradeDay, no_st + no_new))
+      },
   ]
 
 # 获取数据
@@ -180,9 +204,10 @@ a={
 
 def getHistoryData():
     global hasWriteHeader, a
-    daylength = 1
-    # currentDay = '20211214'
+    daylength = 2
+    # currentDay = '20220617'
     currentDay = getCurrentTradeDay()
+    # currentDay = getLastTradeDay(currentDay)
     for i in range(0, daylength):
         values = getData(currentDay)
         # values= a[currentDay]
@@ -199,7 +224,7 @@ def setColumnWidth():
     # 数量
     worksheet.set_column(1, 9, 3.5, cell_format)
     # 率
-    worksheet.set_column(10, 36, 5.2, cell_format)
+    worksheet.set_column(10, 60, 5.2, cell_format)
     # 跌停数量
     worksheet.set_column(22, 22, 3.5, cell_format)
 
