@@ -4,7 +4,7 @@
 
 from copy import deepcopy
 from time import sleep
-from cv2 import sort
+
 import requests
 import re
 import json
