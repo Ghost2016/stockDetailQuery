@@ -215,6 +215,11 @@ def crawl_index(question='昨日涨停 非st 非新股 非退市', day=getCurren
     percentage = stocks[0]['指数@涨跌幅:前复权[%s]' % day]
     return str('%.2f' % float(percentage))
 
+# 获取指数的成交额
+def crawl_index_trade_total_money(question="883857成交额",day=getCurrentTradeDay()):
+    stocks = crawl_stock_data(question)
+    percentage = stocks[0]['指数@成交额[%s]' % day]
+    return '%.2f' % (float(percentage)/100000000) +  '亿'
 
 def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay(), showDetail=False):
     # print(question)
@@ -328,25 +333,7 @@ def getRate(_day):
 
 
 if __name__ == "__main__":
-    # print(111)
-    cDay=getCurrentTradeDay()
-    # cDay='20220426'
-    # partTwo(cDay)
-    _day = cDay
-    # getRate(cDay)
-    max=5
-    for d in range(1, max):
-        lastDay = getLastTradeDay(_day)
-        partTwo(_day, str(21-d))
-        # r1 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停 非st 非新股 非退市 %s涨跌幅' % (_day, lastDay,_day), _day))
-        # r2 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (_day, lastDay, lastDay, lastDay, lastDay, _day), _day))
-        # print(_day,r1, r2)
-        # worksheet.write('A' + str(max - d), _day)
-        # worksheet.write('B' + str(max - d), r1)
-        # worksheet.write('C' + str(max - d), r2)
-        _day = lastDay
-    workbook.close()
-    os.system('open hello.xlsx')
+    crawl_index_trade_total_money('883957成交额')
     
     
     
