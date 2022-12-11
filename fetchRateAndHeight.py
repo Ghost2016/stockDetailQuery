@@ -5,9 +5,13 @@
 
 from meepwn import crawl_earning_of_stocks, crawl_highest, crawl_length, crawl_lost_of_stocks, crawl_index
 from tushareUtils import getCurrentTradeDay, getLastTradeDay, getTushareInstance
+from categories.sentimentCategory import getSentiment, getAutoCal
 import xlsxwriter
 import os
 import datetime
+import sys
+import signal
+
 fileName = 'rateAndHeight.xlsx'
 workbook = xlsxwriter.Workbook(fileName)
 cell_format = workbook.add_format({
@@ -32,12 +36,6 @@ def getSpecificHeightData(num, day):
         'category': '%s涨停 %s连续涨停天数为%d %s' % (currentDay, currentDay, num, no_st + no_new),
         'text': '%d板' % num,
         'method': crawl_length
-    }
-
-def autoCal(text):
-    return {
-        'text': text,
-        'func': '自动计算'
     }
 
 # 新股需要手动去进行修正
@@ -77,18 +75,7 @@ def getCategories(day):
       'text': '最高板',
       'func': crawl_highest('非st 非创业板 非科创板 非新股 %s二连板以上' % (currentDay), currentDay)
     },
-    autoCal('涨停数'),
-    autoCal('连板数'),
-    autoCal('整体封板率'),
-    autoCal('首板成功率'),
-    autoCal('1进2晋级率'),
-    autoCal('2进3晋级率'),
-    autoCal('3进4晋级率'),
-    autoCal('4进5晋级率'),
-    autoCal('5板以上晋级率'),
-    autoCal('连板晋级率(2板+)'),
-    autoCal('中高位晋级率(3板+)'),
-    autoCal('总情绪'),
+    *getAutoCal(),
     {
       'category': '%s跌停 %s' % (currentDay, no_st),
       'text': '跌停',
@@ -155,26 +142,7 @@ def getCategories(day):
       'text': '盘中超跌-5%计数',
       'method': crawl_length
     },
-    {
-      'text': '昨日的首板今日红盘个数',
-      'func': crawl_length('%s涨跌幅大于0 %s涨停 %s未涨停 %s' % (currentDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
-      },
-      {
-      'text': '昨日的首板今日大面个数',
-      'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s涨停 %s未涨停 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
-      },
-      {
-      'text': '昨日的连板今日红盘个数',
-      'func': crawl_length('%s涨跌幅大于0 %s连续涨停天数为2以上 %s' % (currentDay, lastTradeDay, no_st + no_new))
-      },
-      {
-      'text': '昨日的连板今日大面个数',
-      'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s连续涨停天数为2以上 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, no_st + no_new))
-      },
-      {
-      'text': '昨日的连板今日绿盘个数',
-      'func': crawl_length('%s涨跌幅小于0 %s连续涨停天数为2以上 %s' % (currentDay, lastTradeDay, no_st + no_new))
-      },
+    *getSentiment(day)
   ]
 
 # 获取数据
@@ -198,9 +166,6 @@ def getData(day = getCurrentTradeDay()):
         values.append(value)
     return values
 
-a={
-  '20211214': [17, 23, 62, 15, 7, 3, 1, 4, 11, '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', '自动计算', 1, 3.2, -0.58, 2.09, 7.21, -1.91, 5.11, 7.74, -4.47, 5.3, 0.23, -4.34, -1.89, -1.94],
-}
 
 def getHistoryData():
     global hasWriteHeader, a
@@ -210,7 +175,6 @@ def getHistoryData():
     # currentDay = getLastTradeDay(currentDay)
     for i in range(0, daylength):
         values = getData(currentDay)
-        # values= a[currentDay]
         worksheet.write(letter[0] + str(daylength-(i-1)), datetime.datetime.strptime(currentDay, '%Y%m%d').strftime("%Y/%m/%d"))
         for index, value in enumerate(values):
             worksheet.write(letter[index+1] + str(daylength -(i-1)), value)
@@ -228,14 +192,29 @@ def setColumnWidth():
     # 跌停数量
     worksheet.set_column(22, 22, 3.5, cell_format)
 
+# 生成数据并打开
+def exportDataAndOpen():
+    setColumnWidth()
+    workbook.close()
+    os.system('open %s' % fileName)
+
+# 自定义信号处理函数
+# 防止因为想提前退出而没有生成数据
+def beforeExit():
+    print("终止")
+    exportDataAndOpen()
+    sys.exit(0)
+   
+# 自定义处理 Ctrl + C 终止程序
+signal.signal(signal.SIGINT, beforeExit)
+
+
 if __name__ == "__main__":
     try:
         getHistoryData()
-        setColumnWidth()
-        workbook.close()
+        exportDataAndOpen()
     except Exception as e:
-        print(e)
-        setColumnWidth()
-        workbook.close()
-    os.system('open %s' % fileName)
+        # 防止因为出错退出而没有数据
+        exportDataAndOpen()
+    
 
