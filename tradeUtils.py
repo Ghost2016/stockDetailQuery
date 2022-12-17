@@ -4,7 +4,7 @@
 import time
 import datetime
 from chinese_calendar import is_workday
-from pyautogui import sleep
+from time import sleep
 
 from fileUtils import clearStocks
 import requests
@@ -20,7 +20,7 @@ TIME_NODE = {
 
 # 是否处于一天的交易时间
 def isInTradeTime():
-    # return True
+    return True
     isIn = False
     localTime = time.localtime()
     # localTime = time.localtime(1459925086.7115328)
