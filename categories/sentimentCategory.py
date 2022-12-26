@@ -14,6 +14,21 @@ def autoCal(text):
         'text': text,
         'func': '自动计算'
     }
+# 获取情绪策略 - 5个指标 - 淘县出品
+def getSentimentOfFirstBrokenBan(day):
+    currentDay = day
+    lastTradeDay = getLastTradeDay(currentDay)
+    theDayBeforeLastTradeDay = getLastTradeDay(lastTradeDay)
+    return [
+        {
+            'text': '昨日的首板今日红盘个数',
+            'func': crawl_length('%s涨跌幅大于0 %s涨停 %s未涨停 %s' % (currentDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+        },
+        {
+            'text': '昨日的首板今日大面个数',
+            'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s涨停 %s未涨停 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+        },
+    ]
 
 # 获取情绪策略 - 5个指标 - 淘县出品
 def getSentiment(day):
