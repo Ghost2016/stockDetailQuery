@@ -21,12 +21,13 @@ def getSentimentOfFirstBrokenBan(day):
     theDayBeforeLastTradeDay = getLastTradeDay(lastTradeDay)
     return [
         {
-            'text': '昨日的首板今日红盘个数',
-            'func': crawl_length('%s涨跌幅大于0 %s涨停 %s未涨停 %s' % (currentDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+            'text': '昨日的首板今日曾红盘个数',
+            'func': crawl_length('%s涨跌幅曾大于0 %s涨停 %s开板次数大于0 %s未涨停 %s' % (currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
         },
         {
-            'text': '昨日的首板今日大面个数',
-            'func': crawl_length('(%s的收盘价格/开盘价格小于0.95)或者(%s的收盘价格/%s收盘价格小于0.95) %s涨停 %s未涨停 %s' % (currentDay, currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
+            # 大面的定义：当日跌幅大于 5%，当日从开盘到收盘跌幅大于 5%
+            'text': '昨日的首板今日曾大面个数',
+            'func': crawl_length('(%s的最近价格/%s收盘价格小于0.95) %s涨停 %s开板次数大于0 %s未涨停 %s' % (currentDay, lastTradeDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new))
         },
     ]
 
@@ -74,7 +75,7 @@ def getAutoCal():
         autoCal('总情绪')
     ]
 if __name__ == "__main__":
-    getSentiment('20221209')
+    getSentiment('20221111')
     
     
 

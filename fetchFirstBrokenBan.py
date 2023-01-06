@@ -95,15 +95,15 @@ def getData(day = getCurrentTradeDay()):
 
 def getHistoryData():
     global hasWriteHeader, a
-    daylength = 5
-    # currentDay = '20220617'
+    dayLength = 1
+    # currentDay = '20221028'
     currentDay = getCurrentTradeDay()
     # currentDay = getLastTradeDay(currentDay)
-    for i in range(0, daylength):
+    for i in range(0, dayLength):
         values = getData(currentDay)
-        worksheet.write(letter[0] + str(daylength-(i-1)), datetime.datetime.strptime(currentDay, '%Y%m%d').strftime("%Y/%m/%d"))
+        worksheet.write(letter[0] + str(dayLength-(i-1)), datetime.datetime.strptime(currentDay, '%Y%m%d').strftime("%Y/%m/%d"))
         for index, value in enumerate(values):
-            worksheet.write(letter[index+1] + str(daylength -(i-1)), value)
+            worksheet.write(letter[index+1] + str(dayLength -(i-1)), value)
         print(i, currentDay, values)
         currentDay = getLastTradeDay(currentDay)
         hasWriteHeader = True
