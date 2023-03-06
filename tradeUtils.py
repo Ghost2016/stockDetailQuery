@@ -96,11 +96,13 @@ def checkClearStock():
         clearStocks()
 
 # 发送信息（目前是发送到钉钉上）
-def sendMessage(result):
+def sendMessage(result, isAtAll=False):
     headers = {
         'content-type': 'application/json',
     }
-    data = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"} }' % result
+    firstBanData = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"} }' % result
+    atAllData = '{\t"msgtype": "text",\t"text": {\t"content": "霸霸:%s"},\t"at": {\t"isAtAll": true} }' % result
+    data = atAllData if(isAtAll) else firstBanData
     requests.post('https://oapi.dingtalk.com/robot/send?access_token=bf8d15a1ccdc83ae88e761b32f70057dd298c25db755f38514c69887199eb2e5', headers=headers, data=data.encode("utf-8").decode("latin1"))
 
 

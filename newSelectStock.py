@@ -12,10 +12,7 @@ from tushareUtils import getCurrentTradeDay, getLastTradeDay
 
 from meepwn import crawl_stock_name, crawl_stock_data
 from verifyCode.codeUtils import handleSessionError, quitDriver
-import requests
 
-currentDay = getCurrentTradeDay()
-currentDay = getLastTradeDay(currentDay)
 
 # 存放当前的票的列表的Set
 current_stock_list = set()
@@ -46,13 +43,18 @@ def getFirstInStock():
         # pass
 
 def getFirstInDetail():
-    global current_stock_list, total_stock_list, currentDay
-
+    global current_stock_list, total_stock_list
+    hasSecondBan = False
+    currentDay = getCurrentTradeDay()
+    category = '上上个交易日的未涨停 上个交易日的涨停或者未涨停 当日涨停或者曾涨停 非st'
     # stockList = crawl_stock_data('昨日涨停或者曾涨停 非st')
-    stockList = crawl_stock_data('昨日未涨停 当日涨停或者曾涨停 非st')
+    stockList = crawl_stock_data(category)
     l = set()
     for stock in stockList:
-        l.add(stock['股票简称'] + ': ' + str(stock.get('涨停原因类别[%s]' % currentDay, '未知类型')))
+        banString = str(stock.get('几天几板[%s]' % currentDay, '未知类型'))
+        l.add(stock['股票简称'] + ': ' + banString)
+        if '2天' in banString:
+            hasSecondBan = True
     # return stockNames
     current_stock_list=set(l)
     # 取并后取异或得到新进来的票
@@ -63,7 +65,7 @@ def getFirstInDetail():
         # print('新进来的票:', result)
 
         # 发消息
-        sendMessage(result)
+        sendMessage(str(result) + '\n 二板标的！', hasSecondBan)
         # 获取全部的股票的列表
         total_stock_list= total_stock_list | result
         # 保存全部股票的列表
@@ -91,9 +93,9 @@ def parseIWencai():
         return False 
     print('第%s次' % timer)
     # 首板涨停的票详细信息
-    # getFirstInDetail()
+    getFirstInDetail()
     # 获取首次进首板策略的票
-    getFirstInStock()
+    # getFirstInStock()
     # 休息5s
     time.sleep(2)
     # 次数自加1
