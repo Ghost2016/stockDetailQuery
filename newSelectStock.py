@@ -46,7 +46,7 @@ def getFirstInDetail():
     global current_stock_list, total_stock_list
     hasSecondBan = False
     currentDay = getCurrentTradeDay()
-    category = '上上个交易日的未涨停 上个交易日的涨停或者未涨停 当日涨停或者曾涨停 非st'
+    category = '上上个交易日的未涨停 上个交易日的涨停或者未涨停 今天涨停后开板 非st'
     # stockList = crawl_stock_data('昨日涨停或者曾涨停 非st')
     stockList = crawl_stock_data(category)
     l = set()
