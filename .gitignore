@@ -9,10 +9,4 @@ browsermob-proxy-2.1.4/**
 ./chromedriver**
 *.pyc
 *.ini
-
-~$my.xlsx
-my.xlsx
-~$rateAndHeight.xlsx
-rateAndHeight.xlsx
-~$hello.xlsx
-hello.xlsx
+*.xlsx

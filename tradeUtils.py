@@ -35,12 +35,11 @@ def isInTradeTime():
     return isIn
 
 
-def isInWorkDay():
-    return is_workday(datetime.datetime.now())
+def isInWorkDay(day=datetime.datetime.now()):
+    return is_workday(day)
 
 
-def isWeekend():
-    day = datetime.datetime.now()
+def isWeekend(day=datetime.datetime.now()):
     # Monday == 0 ... Sunday == 6
     if day.weekday() in [5, 6]:
         return True
@@ -48,9 +47,9 @@ def isWeekend():
         return False
 
 # 当天是可否可以进行交易
-def isInTradeDay():
+def isInTradeDay(day=datetime.datetime.now()):
     # return True
-    return isInWorkDay() and not isWeekend()
+    return isInWorkDay(day) and not isWeekend(day)
 
 
 def printBeforeSleep(now, distance):
