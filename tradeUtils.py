@@ -106,4 +106,5 @@ def sendMessage(result, isAtAll=False):
 
 
 if __name__ == "__main__":
-    print(isInTradeTime())
+    # print(isInTradeTime())
+    sendMessage('https://www.tjctyyl.com/ttplay/208095-6-35.html')

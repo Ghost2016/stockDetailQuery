@@ -46,6 +46,7 @@ def getFirstInDetail():
     global current_stock_list, total_stock_list
     hasSecondBan = False
     currentDay = getCurrentTradeDay()
+    # currentDay = '20250418'
     category = '上上个交易日的未涨停 上个交易日的涨停或者未涨停 今天涨停后开板 非st'
     # stockList = crawl_stock_data('昨日涨停或者曾涨停 非st')
     stockList = crawl_stock_data(category)
@@ -93,9 +94,9 @@ def parseIWencai():
         return False 
     print('第%s次' % timer)
     # 首板涨停的票详细信息
-    getFirstInDetail()
+    # getFirstInDetail()
     # 获取首次进首板策略的票
-    # getFirstInStock()
+    getFirstInStock()
     # 休息5s
     time.sleep(2)
     # 次数自加1
@@ -111,5 +112,5 @@ def startQuery():
         parseIWencai()
 
 if __name__ == '__main__':
-    # sendMessage('发送首次涨停的票')
+    sendMessage('发送首次涨停的票')
     startQuery()

@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-#coding: utf-8
+# -*- coding: utf-8 -*-
 
 from copy import deepcopy
 from time import sleep
@@ -35,9 +35,11 @@ Question_url = "http://www.iwencai.com/unifiedwap/unified-wap/result/get-stock-p
 
 currentDay = getCurrentTradeDay()
 
-def crawl_source_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
+def crawl_source_data(question=None):
+    if question is None:
+        question = u"上一交易日没有涨停 今天涨停后开板 非st"
     sleep(1)
-    print(question)
+    # print(question)
     """通过问财接口抓取数据
 
     Arguments:
@@ -66,7 +68,9 @@ def crawl_source_data(question="上一交易日没有涨停 今天涨停后开�
         handleSessionError()
         return crawl_source_data(question)
 
-def crawl_stock_data(question="上一交易日没有涨停 今天涨停后开板 非st"):
+def crawl_stock_data(question=None):
+    if question is None:
+        question = u"上一交易日没有涨停 今天涨停后开板 非st"
     response = crawl_source_data(question)
     if response.status_code == 200:
         try:
@@ -87,7 +91,9 @@ def crawl_stock_data(question="上一交易日没有涨停 今天涨停后开板
         handleSessionError()
         return crawl_stock_data(question)
 
-def crawl_stock_name(question="上一交易日没有涨停 今天涨停后开板 非st"):
+def crawl_stock_name(question=None):
+    if question is None:
+        question = u"上一交易日没有涨停 今天涨停后开板 非st"
     stockNames = set()
     stockList = crawl_stock_data(question)
     for stock in stockList:
@@ -216,11 +222,13 @@ def crawl_index(question='昨日涨停 非st 非新股 非退市', day=getCurren
     return str('%.2f' % float(percentage))
 
 # 获取指数的成交额
-def crawl_index_trade_total_money(question="883857成交额",day=getCurrentTradeDay()):
+def crawl_index_trade_total_money(question="883957成交额",day=getCurrentTradeDay()):
     stocks = crawl_stock_data(question)
+    print(stocks)
     percentage = stocks[0]['指数@成交额[%s]' % day]
     return '%.2f' % (float(percentage)/100000000) +  '亿'
-
+# '20221228的883857成交额'
+# '20221228的883957成交额'
 def crawl_earning_of_stocks(question='昨日涨停 非st 非新股 非退市', day=getCurrentTradeDay(), showDetail=False):
     # print(question)
     stocks = crawl_stock_data(question)
@@ -333,7 +341,11 @@ def getRate(_day):
 
 
 if __name__ == "__main__":
-    crawl_index_trade_total_money('883957成交额')
+    # print(crawl_index_trade_total_money('20221228的883957成交额'))
+    length_morning  = crawl_length('今日上午的涨停')
+    length_afternoon = crawl_length('今日下午的涨停')
+    print(length_morning, length_afternoon)
+
     
     
     

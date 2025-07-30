@@ -3,7 +3,7 @@
 
 # 此文件用于获取首板烂板策略的收益率
 
-from meepwn import crawl_earning_of_stocks, crawl_highest, crawl_length, crawl_lost_of_stocks, crawl_index
+from meepwn import crawl_earning_of_stocks, crawl_highest, crawl_length, crawl_lost_of_stocks, crawl_index,crawl_index_trade_total_money
 from tushareUtils import getCurrentTradeDay, getLastTradeDay, getTushareInstance
 from categories.sentimentCategory import getSentimentOfFirstBrokenBan, autoCal
 import xlsxwriter
@@ -69,6 +69,18 @@ def getCategories(day):
       'func': crawl_earning_of_stocks('%s涨跌幅 %s曾涨停 %s开板次数大于0 %s未涨停 %s' % (currentDay, lastTradeDay, lastTradeDay, theDayBeforeLastTradeDay, no_st + no_new), currentDay)
     },
     autoCal('昨日成功今日大面比（自动计算）'),
+    # {
+    #   'text': '成交额',
+    #   'func': crawl_index_trade_total_money('%s的883957成交额' % (currentDay), currentDay)
+    # },
+    # {
+    #   'text': '收阳个数',
+    #   'func': crawl_length('%s收阳线' % (currentDay))
+    # },
+    # {
+    #   'text': '收阴个数',
+    #   'func': crawl_length('%s收阴线' % (currentDay), currentDay)
+    # }
   ]
 
 # 获取数据
@@ -96,7 +108,7 @@ def getData(day = getCurrentTradeDay()):
 def getHistoryData():
     global hasWriteHeader, a
     dayLength = 1
-    # currentDay = '20221028'
+    # currentDay = '20230215'
     currentDay = getCurrentTradeDay()
     # currentDay = getLastTradeDay(currentDay)
     for i in range(0, dayLength):
@@ -139,6 +151,7 @@ if __name__ == "__main__":
         getHistoryData()
         exportDataAndOpen()
     except Exception as e:
+        print(e)
         # 防止因为出错退出而没有数据
         exportDataAndOpen()
     

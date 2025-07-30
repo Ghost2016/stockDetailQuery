@@ -42,7 +42,6 @@ def autoCal(text):
 # 搜索首板的时候不能搜索首板，匹配的是【几天几板是首板】，如果之前有过涨停的就不会被归纳到这个里面来
 def getCategories(day):
     currentDay = day
-    pro=getTushareInstance()
     lastTradeDay = getLastTradeDay(currentDay)
     theDayBeforeLastTradeDay = getLastTradeDay(lastTradeDay)
     threeDayBefore = getLastTradeDay(theDayBeforeLastTradeDay)

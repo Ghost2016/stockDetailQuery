@@ -42,7 +42,6 @@ def getSpecificHeightData(num, day):
 # 搜索首板的时候不能搜索首板，匹配的是【几天几板是首板】，如果之前有过涨停的就不会被归纳到这个里面来
 def getCategories(day):
     currentDay = day
-    pro=getTushareInstance()
     lastTradeDay = getLastTradeDay(currentDay)
     theDayBeforeLastTradeDay = getLastTradeDay(lastTradeDay)
     threeDayBefore = getLastTradeDay(theDayBeforeLastTradeDay)
@@ -133,10 +132,10 @@ def getCategories(day):
       'text': '昨日所有涨停真实收益率（包含炸板）',
       'func': crawl_earning_of_stocks('%s涨停或者曾涨停 %s涨跌幅 %s' % (lastTradeDay, currentDay, no_st + no_new), currentDay)
     },
-    {
-      'text': '上证涨跌幅',
-      'func': crawl_index('%s上证涨跌幅' % currentDay, currentDay)
-    },
+    # {
+    #   'text': '上证涨跌幅',
+    #   'func': crawl_index('%s上证涨跌幅' % currentDay, currentDay)
+    # },
     {
       'category': '%s最低价格/%s收盘价格小于0.95 %s' % (currentDay, lastTradeDay, no_st),
       'text': '盘中超跌-5%计数',
@@ -169,9 +168,10 @@ def getData(day = getCurrentTradeDay()):
 
 def getHistoryData():
     global hasWriteHeader, a
-    daylength = 2
-    # currentDay = '20220617'
+    daylength = 1
+    # currentDay = '20230215'
     currentDay = getCurrentTradeDay()
+    # currentDay = getLastTradeDay(currentDay)
     # currentDay = getLastTradeDay(currentDay)
     for i in range(0, daylength):
         values = getData(currentDay)
