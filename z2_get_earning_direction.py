@@ -146,7 +146,7 @@ def analyze_new_high_stock_concepts():
     
     for i, (concept, count) in enumerate(filtered_counter.most_common(10), 1):
       percentage = (count / len(stock_data)) * 100 if stock_data else 0
-      print("{}. {}: {} 次 (在 {:.1f}% 的股票中出现)".format(i, concept, count, percentage))
+      print("{} - {}({:.2f}% 股票)".format(concept, count, percentage))
 
 if __name__ == "__main__":
   analyze_new_high_stock_concepts()
