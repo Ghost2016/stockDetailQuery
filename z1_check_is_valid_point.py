@@ -1,10 +1,10 @@
 # 检查是否是有效节点
 
 from meepwn import crawl_length
-# from tushareUtils import getCurrentTradeDay
+from tushareUtils import getCurrentTradeDay
 
 # currentDay = getCurrentTradeDay()
-# currentDay = '20250721'
+currentDay = '20250818'
 
 # 下午涨停个数 / 上午涨停个数 >  1 / 2
 def check_length_rate_is_less_than_2():
@@ -20,7 +20,7 @@ def check_length_rate_is_less_than_2():
 # 上涨家数超过3000
 def check_rise_count_is_more_than_3000():
   rise_count = crawl_length(currentDay + '涨跌幅大于0')
-  result = rise_count > 3000
+  result = int(rise_count) > 3000
   print(currentDay, '上涨家数:',  rise_count, '\t——\t', '满足' if result else '不满足')
   return result
 
