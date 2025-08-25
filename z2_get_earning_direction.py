@@ -153,7 +153,7 @@ def analyze_new_high_stock_concepts():
       
       for i, (concept, count) in enumerate(concepts_over_10, 1):
         percentage = (count / len(stock_data)) * 100 if stock_data else 0
-        print("{}. {} - {}个({:.2f}% 股票)".format(i, concept, count, percentage))
+        print("{} - {}个({:.2f}% 股票)".format(concept, count, percentage))
     else:
       # 如果数量超过10个的概念不足10个，使用原有逻辑显示前10个
       print("=== 前10个最有投资价值的概念详细统计 ===")
@@ -161,7 +161,7 @@ def analyze_new_high_stock_concepts():
       
       for i, (concept, count) in enumerate(filtered_counter.most_common(10), 1):
         percentage = (count / len(stock_data)) * 100 if stock_data else 0
-        print("{}. {} - {}个({:.2f}% 股票)".format(i, concept, count, percentage))
+        print("{} - {}个({:.2f}% 股票)".format(concept, count, percentage))
 
 if __name__ == "__main__":
   analyze_new_high_stock_concepts()
