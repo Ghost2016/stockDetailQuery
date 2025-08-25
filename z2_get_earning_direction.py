@@ -15,7 +15,7 @@ MEANINGLESS_CONCEPTS = {
     '同花顺新质50', '同花顺出海50', '同花顺果指数', '同花顺漂亮100', '同花顺中特估100',
     '高股息精选', '中国AI 50', '高端装备',
     '2025中报预增', '2025一季报预增', '参股银行', '互联网保险',
-    '专精特新', '人民币贬值受益', '一带一路', '粤港澳大湾区'
+    '专精特新', '人民币贬值受益', '一带一路', '粤港澳大湾区', '国企改革'
 }
 
 # 概念分析功能
@@ -139,15 +139,29 @@ def analyze_new_high_stock_concepts():
   print("\n过滤后统计总共 {} 个有投资价值的概念".format(len(filtered_results)))
   print("过滤掉了 {} 个无投资意义的概念".format(len(original_results) - len(filtered_results)))
   
-  # 打印前10个最有投资价值的概念详细统计
+  # 打印最有投资价值的概念详细统计
   if len(filtered_results) > 0:
     print("\n" + "="*60)
-    print("=== 前10个最有投资价值的概念详细统计 ===")
-    print("="*60)
     
-    for i, (concept, count) in enumerate(filtered_counter.most_common(10), 1):
-      percentage = (count / len(stock_data)) * 100 if stock_data else 0
-      print("{} - {}({:.2f}% 股票)".format(concept, count, percentage))
+    # 先检查有多少概念数量超过10个
+    concepts_over_10 = [(concept, count) for concept, count in filtered_counter.most_common() if count > 10]
+    
+    if len(concepts_over_10) >= 10:
+      # 如果数量超过10个的概念有10个或更多，只显示这些概念
+      print("=== 数量超过10个的投资价值概念统计 ===")
+      print("="*60)
+      
+      for i, (concept, count) in enumerate(concepts_over_10, 1):
+        percentage = (count / len(stock_data)) * 100 if stock_data else 0
+        print("{}. {} - {}个({:.2f}% 股票)".format(i, concept, count, percentage))
+    else:
+      # 如果数量超过10个的概念不足10个，使用原有逻辑显示前10个
+      print("=== 前10个最有投资价值的概念详细统计 ===")
+      print("="*60)
+      
+      for i, (concept, count) in enumerate(filtered_counter.most_common(10), 1):
+        percentage = (count / len(stock_data)) * 100 if stock_data else 0
+        print("{}. {} - {}个({:.2f}% 股票)".format(i, concept, count, percentage))
 
 if __name__ == "__main__":
   analyze_new_high_stock_concepts()
