@@ -16,8 +16,8 @@ from verifyCode.codeUtils import handleSessionError
 from sentiment import Sentiment
 
 import datetime
-from mysql import insert
-import xlsxwriter
+# from mysql import insert
+# import xlsxwriter
 import os
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
            'Accept-Encoding': 'gzip, deflate',
@@ -204,10 +204,10 @@ def partOne():
     # a=Sentiment('2022-01-14',up_5=up_5,down_5=down_5,up_num=up_num,down_num=down_num,up_all=up_all,down_all=down_all,up_10_2=up_10_2,up_highest=up_highest)
     # a = Sentiment('2021-11-30', 166, 1740, 64, 2, 2899, 1583, 9, 5)
     print(a)
-    insert(a)
+    # insert(a)
 
-workbook = xlsxwriter.Workbook('hello.xlsx')
-worksheet = workbook.add_worksheet()
+# workbook = xlsxwriter.Workbook('hello.xlsx')
+# worksheet = workbook.add_worksheet()
 
 # 过滤空数据(可能是停牌引起的无数据的问题)，这类股票直接过滤掉
 def filterNone(stock, day):
@@ -332,12 +332,12 @@ def getRate(_day):
         r1 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停 非st 非新股 非退市 %s涨跌幅' % (_day, lastDay,_day), _day))
         r2 = str('%.2f' % crawl_earning_of_stocks('%s涨跌幅 %s涨停或%s曾涨停 %s非一字板或者%s放量 非st 非退市 %s涨跌幅' % (_day, lastDay, lastDay, lastDay, lastDay, _day), _day))
         print(_day,r1, r2)
-        worksheet.write('A' + str(max - d), _day)
-        worksheet.write('B' + str(max - d), r1)
-        worksheet.write('C' + str(max - d), r2)
+        # worksheet.write('A' + str(max - d), _day)
+        # worksheet.write('B' + str(max - d), r1)
+        # worksheet.write('C' + str(max - d), r2)
         _day = lastDay
-    workbook.close()
-    os.system('open hello.xlsx')
+    # workbook.close()
+    # os.system('open hello.xlsx')
 
 
 if __name__ == "__main__":
